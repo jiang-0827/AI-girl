@@ -3,6 +3,8 @@ from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation, QRect
 from PyQt5.QtGui import QPainter, QColor, QFont, QPainterPath, QFontMetrics
 from PyQt5.QtWidgets import QWidget, QGraphicsOpacityEffect
 
+from utils.screen import clamp_to_virtual
+
 
 class ChatBubble(QWidget):
     """无边框置顶气泡，圆角矩形 + 底部小三角指向角色"""
@@ -49,6 +51,14 @@ class ChatBubble(QWidget):
     def keep_alive(self, ms: int = 6000):
         self._fade_timer.start(ms)
 
+    def is_showing(self) -> bool:
+        return self.isVisible() and self._opacity.opacity() > 0.05
+
+    def force_fade_out(self):
+        """立即触发淡出（供空闲自动隐藏调用），并停掉自身定时淡出。"""
+        self._fade_timer.stop()
+        self._start_fade_out()
+
     def _position(self, tail_x, tail_y):
         # 根据尾巴对齐方式决定气泡横向位置
         if self.align == 'left':
@@ -58,7 +68,9 @@ class ChatBubble(QWidget):
         else:
             x = tail_x - self.width() // 2
         y = tail_y - self.height()
-        self.move(max(0, int(x)), max(0, int(y)))
+        # 用整个虚拟桌面（含副屏负坐标）做边界，不再锁死主屏
+        x, y = clamp_to_virtual(int(x), int(y), self.width(), self.height())
+        self.move(x, y)
 
     # ---------- 布局 ----------
     def _relayout(self):

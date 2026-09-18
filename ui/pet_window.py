@@ -1,12 +1,13 @@
 """主悬浮窗 - 无边框、透明、置顶桌宠；气泡式对话 + 语音/文字输入 + TTS 播报"""
 import os
-from PyQt5.QtCore import Qt, QPoint, QTimer
+from PyQt5.QtCore import Qt, QPoint, QTimer, QEvent
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import (
     QWidget, QLabel, QMenu, QApplication, QSystemTrayIcon
 )
 
 from config import load_config, save_config, get_image_path
+from utils.screen import clamp_to_virtual
 from core.animator import Animator
 from core.ai_engine import AIEngine, ChatWorker
 from core.hotkey import HotkeyManager
@@ -20,6 +21,9 @@ from ui.input_bar import InputBar
 from ui.confirm_bubble import ConfirmBubble
 from ui.settings_dialog import SettingsDialog
 from utils.resource_path import resource_path
+
+# 本轮对话结束后，无操作多久自动淡出气泡（毫秒）
+IDLE_HIDE_MS = 10000
 
 
 class PetWindow(QWidget):
@@ -66,7 +70,7 @@ class PetWindow(QWidget):
         # 语音引擎
         self.tts = TTSEngine(self.cfg.get("api_key", ""), self.cfg.get("tts_voice", "Cherry"), self)
         self.tts.speakStarted.connect(lambda: self.animator.set_state(Animator.TALKING))
-        self.tts.speakFinished.connect(lambda: self.animator.set_state(Animator.IDLE))
+        self.tts.speakFinished.connect(self._on_speak_finished)
         self.tts.error.connect(lambda m: self._show_ai_bubble("语音播报失败啦"))
         self.asr = ASREngine(self.cfg.get("api_key", ""))
         self.recorder = AudioRecorder()
@@ -94,6 +98,16 @@ class PetWindow(QWidget):
             "cancel_reminder": self.reminders.cancel,
             "enable_tools": self.cfg.get("enable_tools", True),
         }
+
+        # 空闲自动隐藏气泡：本轮对话结束后 10 秒无操作则淡出
+        self._idle_timer = QTimer(self)
+        self._idle_timer.setSingleShot(True)
+        self._idle_timer.timeout.connect(self._on_idle_timeout)
+
+        # 监听全局（本应用内）用户活动，用于重置空闲计时
+        app = QApplication.instance()
+        if app is not None:
+            app.installEventFilter(self)
 
         # 托盘
         self.tray = None
@@ -158,6 +172,7 @@ class PetWindow(QWidget):
 
     # ---------- 拖拽 ----------
     def mousePressEvent(self, ev):
+        self.note_user_activity()
         if ev.button() == Qt.LeftButton:
             self._drag_pos = ev.globalPos() - self._base_pos
         elif ev.button() == Qt.RightButton:
@@ -232,12 +247,12 @@ class PetWindow(QWidget):
     # ---------- 输入条 ----------
     def _open_input(self):
         self.input_bar.adjustSize()
+        self.note_user_activity()
         size = int(self.cfg.get("pet_size", 160))
         x = self._base_pos.x() + size // 2 - self.input_bar.width() // 2
         y = self._base_pos.y() + size + 16
-        screen = QApplication.primaryScreen().availableGeometry()
-        x = max(0, min(x, screen.width() - self.input_bar.width()))
-        y = max(0, min(y, screen.height() - self.input_bar.height()))
+        # 用整个虚拟桌面（含副屏负坐标）定位，使输入条能跟随角色到副屏
+        x, y = clamp_to_virtual(x, y, self.input_bar.width(), self.input_bar.height())
         self.input_bar.move(x, y)
         self.input_bar.show()
         self.input_bar.raise_()
@@ -257,6 +272,7 @@ class PetWindow(QWidget):
         if self.worker and self.worker.isRunning():
             return
         self.proactive.note_interaction()
+        self._idle_timer.stop()  # 新一轮对话开始，暂停空闲隐藏
         if self.tts.is_playing():
             self.tts.stop()
         self._show_user_bubble(text)
@@ -328,9 +344,10 @@ class PetWindow(QWidget):
         self.ai_bubble.keep_alive(6000)
 
     def _on_finished(self):
-        x, y = self._ai_tail()
-        self.ai_bubble.keep_alive(8000)
         if self.cfg.get("enable_tts", True) and self._reply_buf.strip():
+            # 播报期间保持气泡不自动淡出，倒计时等 speakFinished 后启动
+            self.ai_bubble.keep_alive(60000)
+            self.user_bubble.keep_alive(60000)
             self.tts.set_params(
                 api_key=self.cfg.get("api_key"),
                 voice=self.cfg.get("tts_voice", "Cherry"),
@@ -338,12 +355,51 @@ class PetWindow(QWidget):
             self.tts.speak(self._reply_buf)
         else:
             self.animator.set_state(Animator.IDLE)
+            self._begin_idle_countdown()
         self.worker = None
 
     def _on_error(self, msg: str):
         self.animator.set_state(Animator.IDLE)
         self._show_ai_bubble("哎呀，出错了 😥")
         self.worker = None
+        self._begin_idle_countdown()
+
+    # ---------- 空闲自动隐藏气泡 ----------
+    def _on_speak_finished(self):
+        self.animator.set_state(Animator.IDLE)
+        self._begin_idle_countdown()
+
+    def _begin_idle_countdown(self):
+        """本轮对话结束：把气泡自身定时淡出让位于空闲计时器，避免两套计时冲突。"""
+        self.ai_bubble.keep_alive(60000)
+        self.user_bubble.keep_alive(60000)
+        self._idle_timer.start(IDLE_HIDE_MS)
+
+    def note_user_activity(self):
+        """任一用户交互：若空闲倒计时在跑则重新计时。"""
+        if self._idle_timer.isActive():
+            self._begin_idle_countdown()
+
+    def _on_idle_timeout(self):
+        # 正在录音 / 确认弹窗在前台 / 用户正在输入 → 不误隐藏，重新计时
+        if self._recording:
+            self._begin_idle_countdown()
+            return
+        if self.confirm_bubble is not None and self.confirm_bubble.isVisible():
+            self._begin_idle_countdown()
+            return
+        if self.input_bar.isVisible() and self.input_bar.edit.hasFocus():
+            self._begin_idle_countdown()
+            return
+        self.ai_bubble.force_fade_out()
+        self.user_bubble.force_fade_out()
+
+    def eventFilter(self, obj, ev):
+        # 监听本应用内的键盘/鼠标/滚轮活动，用于重置空闲计时
+        t = ev.type()
+        if t in (QEvent.KeyPress, QEvent.MouseButtonPress, QEvent.Wheel):
+            self.note_user_activity()
+        return super().eventFilter(obj, ev)
 
     # ---------- 语音输入 ----------
     def _toggle_voice_input(self):
@@ -360,6 +416,7 @@ class PetWindow(QWidget):
         if not AudioRecorder.available():
             self._show_ai_bubble("录音不可用")
             return
+        self._idle_timer.stop()  # 录音中不自动隐藏
         if self.tts.is_playing():
             self.tts.stop()
         try:
@@ -468,18 +525,24 @@ class PetWindow(QWidget):
 
     # ---------- 位置持久化 ----------
     def _restore_position(self):
-        x = self.cfg.get("position_x", -1)
-        y = self.cfg.get("position_y", -1)
-        screen = QApplication.primaryScreen().availableGeometry()
-        if x < 0 or y < 0:
-            x = screen.right() - 300
-            y = screen.bottom() - 340
+        size = int(self.cfg.get("pet_size", 160))
+        if not self.cfg.get("position_set", False):
+            # 从未设置过：默认放在主屏右下角
+            screen = QApplication.primaryScreen().availableGeometry()
+            x = screen.right() - size - 40
+            y = screen.bottom() - size - 60
+        else:
+            x = self.cfg.get("position_x", 0)
+            y = self.cfg.get("position_y", 0)
+            # 用整个虚拟桌面做包含（允许负坐标），防止显示器变更后遗留在屏外
+            x, y = clamp_to_virtual(x, y, size + 20, size + 20)
         self._base_pos = QPoint(x, y)
         self.move(self._base_pos)
 
     def _save_position(self):
         self.cfg["position_x"] = self._base_pos.x()
         self.cfg["position_y"] = self._base_pos.y()
+        self.cfg["position_set"] = True
         save_config(self.cfg)
 
     # ---------- 退出 ----------

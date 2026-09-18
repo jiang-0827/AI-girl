@@ -66,9 +66,9 @@ class ConfirmBubble(QWidget):
         self.adjustSize()
         x = anchor_x - self.width() // 2
         y = anchor_y - self.height() - 6
-        screen = QApplication_geometry()
-        x = max(0, min(x, screen[0] - self.width()))
-        y = max(0, y)
+        # 用整个虚拟桌面（含副屏负坐标）做边界，不再锁死主屏
+        from utils.screen import clamp_to_virtual
+        x, y = clamp_to_virtual(int(x), int(y), self.width(), self.height())
         self.move(x, y)
         self.show()
         self.raise_()

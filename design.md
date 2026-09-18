@@ -126,6 +126,12 @@ DesktopPetAI/
 - ConfirmBubble.ask() 增加 activateWindow + raise_ 确保前台显示
 - 新增 create_file 工具（支持创建记事本文件）
 
+### v1.2.2 - 多屏拖拽 + 空闲自动隐藏 (2026-09-18)
+- 新增 `utils/screen.py`：以「虚拟桌面」（所有显示器几何并集，含负坐标）为坐标基准
+- 修复输入条/对话气泡/确认气泡被锁死主屏的 bug：`_open_input`、`ChatBubble._position`、`ConfirmBubble.ask` 改用 `clamp_to_virtual` 取代单主屏 `availableGeometry` 裁剪，可自由拖到副屏并跟随角色显示
+- 修复 `_restore_position`：新增 `position_set` 标志区分「未设置」与「合法负坐标」，并用虚拟桌面做包含，避免副屏位置被重置或显示器变更后遗留在屏外
+- 新增「10 秒无操作自动淡出气泡」：本轮对话结束（AI 回复完成 / TTS 播报结束）后启动 `_idle_timer`；通过 `QApplication` 事件过滤器捕获本应用内键盘/鼠标/滚轮活动重置计时；`ChatBubble` 增加 `force_fade_out`/`is_showing`，空闲计时接管气泡淡出，与旧 `keep_alive` 协调避免两套计时冲突；录音中/确认弹窗在前台/正在输入时不误隐藏
+
 ## 依赖清单
 
 ```

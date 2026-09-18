@@ -23,6 +23,7 @@ DEFAULT_CONFIG = {
     "proactive_sit_min": 60,
     "position_x": -1,
     "position_y": -1,
+    "position_set": False,
     "auto_start": False,
     "first_run": True,
 }
