@@ -9,7 +9,7 @@
 import os
 import math
 import random
-from PySide6.QtCore import Qt, QPoint, QTimer, QEvent
+from PySide6.QtCore import Qt, QPoint, QRect, QTimer, QEvent
 from PySide6.QtGui import QPixmap, QIcon, QCursor
 from PySide6.QtWidgets import (
     QWidget, QLabel, QMenu, QApplication, QSystemTrayIcon
@@ -97,6 +97,7 @@ class PetWindow(QWidget):
             self.cfg.get("api_key", ""),
             self.cfg.get("model", "qwen-turbo"),
             self.cfg.get("system_prompt", ""),
+            self.cfg.get("llm_base_url", ""),
         )
         self.worker = None
 
@@ -110,7 +111,14 @@ class PetWindow(QWidget):
         self.engine.memory = self.memory
 
         # 语音引擎
-        self.tts = TTSEngine(self.cfg.get("api_key", ""), self.cfg.get("tts_voice", "Cherry"), self)
+        self.tts = TTSEngine(
+            self.cfg.get("api_key", ""),
+            self.cfg.get("tts_voice", "Cherry"),
+            self,
+            provider=self.cfg.get("tts_provider", "qwen"),
+            base_url=self.cfg.get("tts_base_url", ""),
+            model=self.cfg.get("tts_model", ""),
+        )
         self.tts.speakStarted.connect(lambda: self.animator.set_state(Animator.TALKING))
         self.tts.speakFinished.connect(self._on_speak_finished)
         self.tts.error.connect(lambda m: self._show_ai_bubble("语音播报失败啦"))
@@ -208,12 +216,24 @@ class PetWindow(QWidget):
         self._reposition_bubbles()
 
     def _reposition_bubbles(self):
+        self._sync_bubble_avoid()
         if self.ai_bubble.isVisible():
             x, y = self._ai_tail()
             self.ai_bubble.update_text(self.ai_bubble._text, x, y)
         if self.user_bubble.isVisible():
             x, y = self._user_tail()
             self.user_bubble.update_text(self.user_bubble._text, x, y)
+
+    def _sync_bubble_avoid(self):
+        """两个气泡同时显示时互相避让（重叠则上移），避免重合冲突"""
+        if self.user_bubble.isVisible():
+            self.ai_bubble.set_avoid(self.user_bubble.geometry())
+        else:
+            self.ai_bubble.set_avoid(None)
+        if self.ai_bubble.isVisible():
+            self.user_bubble.set_avoid(self.ai_bubble.geometry())
+        else:
+            self.user_bubble.set_avoid(None)
 
     def _pet_center(self):
         size = int(self.cfg.get("pet_size", 176))
@@ -324,6 +344,7 @@ class PetWindow(QWidget):
 
     # ---------- 互动气泡（不遮挡角色：位于头顶上方） ----------
     def _show_anim_bubble(self, text: str):
+        self._sync_bubble_avoid()
         x, y = self._ai_tail()
         self.ai_bubble.show_text(text, x, y)
         self.ai_bubble.keep_alive(4500)
@@ -515,6 +536,7 @@ class PetWindow(QWidget):
             api_key=self.cfg.get("api_key"),
             model=self.cfg.get("model"),
             system_prompt=self.cfg.get("system_prompt"),
+            base_url=self.cfg.get("llm_base_url", ""),
         )
         self.animator.set_state(Animator.THINKING)
         self._reply_buf = ""
@@ -561,14 +583,20 @@ class PetWindow(QWidget):
             except Exception:
                 pass
         if self.cfg.get("enable_tts", True):
-            self.tts.set_params(api_key=self.cfg.get("api_key"), voice=self.cfg.get("tts_voice", "Cherry"))
+            self.tts.set_params(api_key=self.cfg.get("api_key"), voice=self.cfg.get("tts_voice", "Cherry"),
+                                provider=self.cfg.get("tts_provider", "qwen"),
+                                base_url=self.cfg.get("tts_base_url", ""),
+                                model=self.cfg.get("tts_model", ""))
             self.tts.speak(f"提醒你，{text}")
         self.proactive.note_interaction()
 
     def _on_proactive_speak(self, text: str):
         self._show_ai_bubble(text)
         if self.cfg.get("enable_tts", True):
-            self.tts.set_params(api_key=self.cfg.get("api_key"), voice=self.cfg.get("tts_voice", "Cherry"))
+            self.tts.set_params(api_key=self.cfg.get("api_key"), voice=self.cfg.get("tts_voice", "Cherry"),
+                                provider=self.cfg.get("tts_provider", "qwen"),
+                                base_url=self.cfg.get("tts_base_url", ""),
+                                model=self.cfg.get("tts_model", ""))
             self.tts.speak(text)
 
     def _on_token(self, delta: str):
@@ -698,11 +726,13 @@ class PetWindow(QWidget):
         self._show_ai_bubble(text)
 
     def _show_ai_bubble(self, text: str):
+        self._sync_bubble_avoid()
         x, y = self._ai_tail()
         self.ai_bubble.show_text(text, x, y)
         self._begin_idle_countdown()  # 无操作 10 秒后自动消失（期间有操作会重置）
 
     def _show_user_bubble(self, text: str):
+        self._sync_bubble_avoid()
         x, y = self._user_tail()
         self.user_bubble.show_text(text, x, y)
 
@@ -731,7 +761,18 @@ class PetWindow(QWidget):
     def _apply_config(self):
         self._update_display()
         self.setWindowOpacity(max(0.4, self.cfg.get("opacity", 255) / 255.0))
-        self.tts.set_params(voice=self.cfg.get("tts_voice", "Cherry"))
+        self.tts.set_params(
+            voice=self.cfg.get("tts_voice", "Cherry"),
+            provider=self.cfg.get("tts_provider", "qwen"),
+            base_url=self.cfg.get("tts_base_url", ""),
+            model=self.cfg.get("tts_model", ""),
+        )
+        self.engine.set_params(
+            api_key=self.cfg.get("api_key"),
+            model=self.cfg.get("model"),
+            system_prompt=self.cfg.get("system_prompt"),
+            base_url=self.cfg.get("llm_base_url", ""),
+        )
         self.ctx["enable_tools"] = self.cfg.get("enable_tools", True)
         self.memory.set_params(
             api_key=self.cfg.get("api_key", ""),
@@ -758,16 +799,31 @@ class PetWindow(QWidget):
             self.voice_hotkey.start()
 
     # ---------- 位置持久化 ----------
+    def _pos_on_any_screen(self, x, y, w, h) -> bool:
+        """检查矩形是否与任一已连接屏幕相交（防止桌宠落在已拔出的幽灵副屏上）"""
+        try:
+            rect = QRect(x, y, w, h)
+            for scr in QApplication.screens():
+                if rect.intersects(scr.geometry()):
+                    return True
+        except Exception:
+            pass
+        return False
+
     def _restore_position(self):
         size = int(self.cfg.get("pet_size", 176))
-        if not self.cfg.get("position_set", False):
+        def primary_pos():
             screen = QApplication.primaryScreen().availableGeometry()
-            x = screen.right() - size - 40
-            y = screen.bottom() - size - 60
+            return (screen.right() - size - 40, screen.bottom() - size - 60)
+        if not self.cfg.get("position_set", False):
+            x, y = primary_pos()
         else:
             x = self.cfg.get("position_x", 0)
             y = self.cfg.get("position_y", 0)
             x, y = clamp_to_virtual(x, y, size + 20, size + 20)
+            # 位置落在已拔出的幽灵屏上：重置到主屏右下角
+            if not self._pos_on_any_screen(x, y, size + 20, size + 20):
+                x, y = primary_pos()
         self._base_pos = QPoint(x, y)
         self.move(self._base_pos)
 

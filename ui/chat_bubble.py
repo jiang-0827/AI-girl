@@ -36,6 +36,11 @@ class ChatBubble(QWidget):
         self._font = QFont("Microsoft YaHei", 11)
         self._font.setPixelSize(self.BASE_FONT_PX)
         self._scale = 1.0
+        self._avoid_rect = None   # 需要避让的矩形（另一气泡），避免重叠
+
+    def set_avoid(self, rect):
+        """设置需要避让的矩形（另一气泡的 geometry），None 表示不避让"""
+        self._avoid_rect = rect
 
     # ---------- 对外接口 ----------
     def show_text(self, text: str, tail_x: int, tail_y: int):
@@ -86,6 +91,11 @@ class ChatBubble(QWidget):
         # 以尾巴所在屏幕为边界，保证气泡完整显示在角色当前屏（含副屏负坐标）
         x, y = clamp_to_screen(int(x), int(y), self.width(), self.height(), int(tail_x), int(tail_y))
         self.move(x, y)
+        # 避让：若与另一气泡（用户气泡/AI 气泡）重叠，向上移动到其上方，避免重合
+        if self._avoid_rect is not None:
+            r = self.geometry()
+            if r.intersects(self._avoid_rect):
+                self.move(r.x(), self._avoid_rect.y() - r.height() - 8)
 
     # ---------- 布局 ----------
     def _relayout(self):

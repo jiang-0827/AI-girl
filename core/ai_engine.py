@@ -8,6 +8,7 @@ from PySide6.QtCore import QThread, Signal
 from core.tools import SCHEMAS, run as run_tool, needs_confirm, is_forbidden, describe as describe_tool
 
 API_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
+DEFAULT_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
 MAX_ROUNDS = 20
 MAX_TOOL_STEPS = 6  # 单轮最多工具往返次数
 
@@ -35,20 +36,23 @@ TOOL_USAGE_RULES = (
 
 
 class AIEngine:
-    def __init__(self, api_key, model="qwen-turbo", system_prompt=""):
+    def __init__(self, api_key, model="qwen-turbo", system_prompt="", base_url=None):
         self.api_key = api_key
         self.model = model
         self.system_prompt = system_prompt
+        self.base_url = (base_url or DEFAULT_BASE_URL).rstrip("/")
         self.history = []
         self.memory = None   # 可选：MemoryStore 实例
 
-    def set_params(self, api_key=None, model=None, system_prompt=None):
+    def set_params(self, api_key=None, model=None, system_prompt=None, base_url=None):
         if api_key is not None:
             self.api_key = api_key
         if model is not None:
             self.model = model
         if system_prompt is not None:
             self.system_prompt = system_prompt
+        if base_url is not None:
+            self.base_url = base_url.rstrip("/")
 
     def reset(self):
         self.history = []
@@ -85,7 +89,7 @@ class AIEngine:
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
-        resp = requests.post(API_URL, headers=headers, json=payload, timeout=timeout)
+        resp = requests.post(self.base_url + "/chat/completions", headers=headers, json=payload, timeout=timeout)
         if resp.status_code != 200:
             raise RuntimeError(f"API 错误 {resp.status_code}: {resp.text[:200]}")
         return resp.json()["choices"][0]["message"]

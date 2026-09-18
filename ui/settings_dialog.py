@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (
     QMessageBox, QTabWidget, QWidget, QSpinBox
 )
 
-from core.tts_engine import VOICES
+from core.tts_engine import QWEN_VOICES, OPENAI_VOICES, PROVIDER_NAMES
 
 
 class SettingsDialog(QDialog):
@@ -43,10 +43,17 @@ class SettingsDialog(QDialog):
         key_row.addWidget(show_btn)
         form.addRow("API Key:", self._wrap(key_row))
 
+        self.base_url_edit = QLineEdit(self.cfg.get("llm_base_url", ""))
+        self.base_url_edit.setPlaceholderText("OpenAI 兼容地址，默认 https://dashscope.aliyuncs.com/compatible-mode/v1")
+        form.addRow("对话 API 地址:", self.base_url_edit)
+
         self.model_combo = QComboBox()
+        self.model_combo.setEditable(True)
         self.model_combo.addItems(["qwen-turbo", "qwen-plus", "qwen-max"])
         cur_model = self.cfg.get("model", "qwen-turbo")
         if cur_model in ["qwen-turbo", "qwen-plus", "qwen-max"]:
+            self.model_combo.setCurrentText(cur_model)
+        else:
             self.model_combo.setCurrentText(cur_model)
         form.addRow("模型:", self.model_combo)
 
@@ -105,15 +112,31 @@ class SettingsDialog(QDialog):
         self.tts_chk.setChecked(bool(self.cfg.get("enable_tts", True)))
         wform.addRow(self.tts_chk)
 
+        # 语音引擎（Provider）选择
+        self.provider_combo = QComboBox()
+        cur_provider = self.cfg.get("tts_provider", "qwen")
+        for key, name in PROVIDER_NAMES.items():
+            self.provider_combo.addItem(name, key)
+        idx = self.provider_combo.findData(cur_provider)
+        self.provider_combo.setCurrentIndex(max(0, idx))
+        self.provider_combo.currentIndexChanged.connect(self._refresh_voice_combo)
+        wform.addRow("语音引擎:", self.provider_combo)
+
+        self.tts_base_url_edit = QLineEdit(self.cfg.get("tts_base_url", ""))
+        self.tts_base_url_edit.setPlaceholderText("OpenAI 兼容 TTS 地址，如 https://api.openai.com/v1")
+        wform.addRow("TTS 地址:", self.tts_base_url_edit)
+
+        self.tts_model_edit = QLineEdit(self.cfg.get("tts_model", ""))
+        self.tts_model_edit.setPlaceholderText("留空默认（通义=qwen-tts；OpenAI 兼容=tts-1）")
+        wform.addRow("TTS 模型:", self.tts_model_edit)
+
+        # 音色列表（随引擎切换）
         self.voice_combo = QComboBox()
-        for label in VOICES.keys():
-            self.voice_combo.addItem(label)
-        cur_voice = self.cfg.get("tts_voice", "Cherry")
-        for i, (label, val) in enumerate(VOICES.items()):
-            if val == cur_voice:
-                self.voice_combo.setCurrentIndex(i)
-                break
+        self._voice_items = []
+        self._refresh_voice_combo()
         wform.addRow("音色:", self.voice_combo)
+        wform.addRow(QLabel("通义音色：芊芊/苏瑶/晨煦/千雪。OpenAI 兼容音色：alloy/echo/fable/onyx/nova/shimmer。"
+                            "更换其他大模型的语音，只需切换语音引擎并填写对应 TTS 地址、模型与音色。"))
 
         self.asr_chk = QCheckBox("启用语音输入（对着麦克风说话）")
         self.asr_chk.setChecked(bool(self.cfg.get("enable_asr", True)))
@@ -206,6 +229,21 @@ class SettingsDialog(QDialog):
         w.setLayout(layout)
         return w
 
+    def _refresh_voice_combo(self):
+        """根据当前语音引擎刷新音色下拉"""
+        self.voice_combo.clear()
+        self._voice_items = []
+        provider = self.provider_combo.currentData() or "qwen"
+        voices = QWEN_VOICES if provider == "qwen" else {v: v for v in OPENAI_VOICES}
+        for label, val in voices.items():
+            self.voice_combo.addItem(label)
+            self._voice_items.append((label, val))
+        cur_voice = self.cfg.get("tts_voice", "Cherry")
+        for i, (label, val) in enumerate(self._voice_items):
+            if val == cur_voice:
+                self.voice_combo.setCurrentIndex(i)
+                break
+
     def _browse_img(self):
         path, _ = QFileDialog.getOpenFileName(
             self, "选择角色图片", "", "图片文件 (*.png *.jpg *.jpeg *.bmp *.gif)")
@@ -214,6 +252,7 @@ class SettingsDialog(QDialog):
 
     def _on_accept(self):
         self.cfg["api_key"] = self.api_key_edit.text().strip()
+        self.cfg["llm_base_url"] = self.base_url_edit.text().strip()
         self.cfg["model"] = self.model_combo.currentText()
         self.cfg["system_prompt"] = self.sys_prompt_edit.toPlainText().strip()
         self.cfg["character_image"] = self.img_edit.text().strip() or "assets/character.png"
@@ -221,7 +260,11 @@ class SettingsDialog(QDialog):
         self.cfg["opacity"] = self.opacity_slider.value()
         self.cfg["hotkey"] = self.hotkey_edit.text().strip() or "<ctrl>+<shift>+<space>"
         self.cfg["enable_tts"] = self.tts_chk.isChecked()
-        self.cfg["tts_voice"] = list(VOICES.values())[self.voice_combo.currentIndex()]
+        self.cfg["tts_provider"] = self.provider_combo.currentData() or "qwen"
+        self.cfg["tts_base_url"] = self.tts_base_url_edit.text().strip()
+        self.cfg["tts_model"] = self.tts_model_edit.text().strip()
+        if self._voice_items:
+            self.cfg["tts_voice"] = self._voice_items[self.voice_combo.currentIndex()][1]
         self.cfg["enable_asr"] = self.asr_chk.isChecked()
         self.cfg["voice_hotkey"] = self.voice_hotkey_edit.text().strip() or "<ctrl>+<shift>+v"
         self.cfg["enable_tools"] = self.tools_chk.isChecked()

@@ -6,6 +6,7 @@ from utils.resource_path import config_path, resource_path
 DEFAULT_CONFIG = {
     "api_key": "",
     "model": "qwen-turbo",
+    "llm_base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
     "system_prompt": "你是一个可爱的桌面小助手，说话简洁、活泼、有温度，回答尽量简短（每次不超过120字）。",
     "character_image": "assets/character.png",
     "pet_size": 176,
@@ -14,6 +15,9 @@ DEFAULT_CONFIG = {
     "opacity": 255,
     "hotkey": "<ctrl>+<shift>+<space>",
     "enable_tts": True,
+    "tts_provider": "qwen",      # qwen=通义千问 Qwen-TTS；openai=OpenAI 兼容 /audio/speech
+    "tts_base_url": "",          # OpenAI 兼容 TTS 地址（如 https://api.openai.com/v1）
+    "tts_model": "",             # TTS 模型（qwen 默认 qwen-tts；openai 默认 tts-1）
     "tts_voice": "Cherry",
     "enable_asr": True,
     "voice_hotkey": "<ctrl>+<shift>+v",

@@ -43,16 +43,20 @@ def main():
     # Qt6/PySide6 默认启用 HighDPI，无需手动设置
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)  # 关闭聊天窗不退出程序
+    print("M1: QApplication ready", flush=True)
 
     pet = PetWindow()
+    print("M2: PetWindow constructed", flush=True)
     pet.show()
+    print("M3: pet shown", flush=True)
 
     if maybe_first_run_guidance(app):
+        print("M4: first-run guidance accepted", flush=True)
         pet.open_settings()
         cfg = load_config()
         cfg["first_run"] = False
         save_config(cfg)
-
+    print("M5: guidance checked", flush=True)
     # 启动欢迎气泡
     from PySide6.QtCore import QTimer
     QTimer.singleShot(600, lambda: pet._show_bubble("嗨！我是你的桌面小助手 🐾"))
