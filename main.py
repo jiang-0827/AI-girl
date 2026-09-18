@@ -5,8 +5,8 @@ import os
 # 确保项目根目录在 sys.path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QMessageBox
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QMessageBox
 
 from config import load_config, save_config
 from ui.pet_window import PetWindow
@@ -32,7 +32,7 @@ def maybe_first_run_guidance(app):
         box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         box.button(QMessageBox.Yes).setText("现在配置")
         box.button(QMessageBox.No).setText("稍后再说")
-        if box.exec_() == QMessageBox.Yes:
+        if box.exec() == QMessageBox.Yes:
             return True  # 需要打开设置
         cfg["first_run"] = False
         save_config(cfg)
@@ -40,10 +40,7 @@ def maybe_first_run_guidance(app):
 
 
 def main():
-    # 高分屏适配
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
-
+    # Qt6/PySide6 默认启用 HighDPI，无需手动设置
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)  # 关闭聊天窗不退出程序
 
@@ -57,10 +54,10 @@ def main():
         save_config(cfg)
 
     # 启动欢迎气泡
-    from PyQt5.QtCore import QTimer
+    from PySide6.QtCore import QTimer
     QTimer.singleShot(600, lambda: pet._show_bubble("嗨！我是你的桌面小助手 🐾"))
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":

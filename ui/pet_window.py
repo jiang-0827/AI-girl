@@ -1,12 +1,21 @@
-"""主悬浮窗 - 无边框、透明、置顶桌宠；气泡式对话 + 语音/文字输入 + TTS 播报"""
+"""主悬浮窗 - 无边框、透明、置顶桌宠
+
+整合能力：
+- 多帧动画（13 状态 68 帧）：idle/blink/chat/jump/shake/run/pet-head/feed/walk/coffee/sleep/reminder
+- 左键点击轮流互动：跳跃 → 压扁回弹 → 左右抖动；互动随机中文气泡
+- 拖拽移动：播放跑动动画；滚轮调整大小；右键互动菜单；跟随鼠标
+- AI 能力：气泡对话（打字机+工具循环）、TTS、ASR、热键、提醒、主动关怀、长期记忆
+"""
 import os
-from PyQt5.QtCore import Qt, QPoint, QTimer, QEvent
-from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtWidgets import (
+import math
+import random
+from PySide6.QtCore import Qt, QPoint, QTimer, QEvent
+from PySide6.QtGui import QPixmap, QIcon, QCursor
+from PySide6.QtWidgets import (
     QWidget, QLabel, QMenu, QApplication, QSystemTrayIcon
 )
 
-from config import load_config, save_config, get_image_path
+from config import load_config, save_config
 from utils.screen import clamp_to_virtual, clamp_to_screen, screen_scale
 from core.animator import Animator
 from core.ai_engine import AIEngine, ChatWorker
@@ -26,6 +35,26 @@ from utils.resource_path import resource_path
 # 本轮对话结束后，无操作多久自动淡出气泡（毫秒）
 IDLE_HIDE_MS = 10000
 
+# 互动气泡文案（简短、有趣、中文）
+TAP_TEXT = {
+    'jump': ["嘿！跳起来啦！", "陪你玩一下~", "嘿嘿，看我跳得多高！", "活动一下筋骨！"],
+    'shake': ["咦？摇摇晃晃~", "别晃啦，晕乎乎的~", "左右摇摆，真开心！", "抖一抖，精神好！"],
+    'squash': ["哎呀！被压扁啦！", "呼~弹回来了！", "嘿嘿，再来一次！", "软软的，很好捏！"],
+}
+IDLE_TEXTS = [
+    "今天过得怎么样呀？", "我好无聊哦~", "要不要摸摸我的头？",
+    "想听我讲个小秘密吗？", "你敲键盘的声音好好听~", "陪我玩一下嘛！",
+    "在忙什么呀？", "嘿嘿，我一直在看着你哦~",
+]
+PET_HEAD_TEXTS = ["呜…好舒服~", "再摸摸嘛", "被你摸头最幸福啦", "头发都摸乱啦！"]
+FEED_TEXTS = ["好好吃！谢谢~", "甜点最棒啦！", "再来一块嘛~", "呜…太好了"]
+WALK_TEXTS = ["走一走真开心！", "我们去散步吧~", "活动一下身体~", "跟着我走起来！"]
+COFFEE_TEXTS = ["咖啡好香呀~", "暖暖的，好幸福", "谢谢你的咖啡！", "再来一杯嘛~"]
+SLEEP_TEXTS = ["晚安啦…", "好困呀，呼~", "做个好梦…", "嘘…睡着了"]
+
+# 右键"调整大小"档位
+SIZE_LEVELS = [(120, "小"), (176, "中"), (220, "大"), (300, "超大")]
+
 
 class PetWindow(QWidget):
     def __init__(self):
@@ -37,19 +66,22 @@ class PetWindow(QWidget):
         self._base_pos = QPoint(100, 100)
         self._anim_offset = QPoint(0, 0)
         self._scale = 1.0
-        self._blink_on = False
+        self._frame = None
         self._reply_buf = ""
         self._recording = False
+        self._click_seq = 0          # 点击互动轮转序号
+        self._dragging = False
+        self._last_drag_x = 0
 
-        # 角色标签
+        # 角色标签（多帧动画显示）
         self.label = QLabel(self)
         self.label.setAlignment(Qt.AlignCenter)
 
-        # 动画
+        # 动画状态机
         self.animator = Animator(self)
+        self.animator.frameChanged.connect(self._on_frame)
         self.animator.offsetChanged.connect(self._on_offset)
         self.animator.scaleChanged.connect(self._on_scale)
-        self.animator.blinkChanged.connect(self._on_blink)
 
         # 两个气泡：AI（右上）+ 用户（左上）
         self.ai_bubble = ChatBubble(role="ai", align="left")
@@ -119,13 +151,24 @@ class PetWindow(QWidget):
         if app is not None:
             app.installEventFilter(self)
 
+        # 闲时随机互动
+        self._idle_anim_timer = QTimer(self)
+        self._idle_anim_timer.setSingleShot(True)
+        self._idle_anim_timer.timeout.connect(self._on_idle_anim)
+
+        # 跟随鼠标
+        self._follow_timer = QTimer(self)
+        self._follow_timer.setInterval(33)
+        self._follow_timer.timeout.connect(self._follow_tick)
+
         # 托盘
         self.tray = None
         self._build_tray()
 
-        self._load_pixmap()
         self._restore_position()
+        self._apply_topmost_flag()
         self.setWindowOpacity(max(0.4, self.cfg.get("opacity", 255) / 255.0))
+        self._update_display()
         self._sync_screen_scale()  # 启动时按所在屏适配大小
 
         # 热键
@@ -133,28 +176,27 @@ class PetWindow(QWidget):
         self.voice_hotkey = None
         self._start_hotkeys()
 
-    # ---------- 渲染 ----------
-    def _load_pixmap(self):
-        path = get_image_path(self.cfg)
-        if not os.path.exists(path):
-            path = resource_path("assets/character.png")
-        self._pixmap = QPixmap(path)
-        # 眨眼帧：与主图同目录的 character_blink.png
-        blink_path = os.path.join(os.path.dirname(path), "character_blink.png")
-        if not os.path.exists(blink_path):
-            blink_path = resource_path("assets/character_blink.png")
-        self._blink_pixmap = QPixmap(blink_path) if os.path.exists(blink_path) else QPixmap()
-        self._update_pixmap()
+        # 启动闲时随机互动
+        self._schedule_idle_anim()
+        # 启动跟随鼠标（若配置开启）
+        if self.cfg.get("follow_mouse", False):
+            self._follow_timer.start()
 
-    def _update_pixmap(self):
-        size = int(self.cfg.get("pet_size", 160))
-        w = int(size * self._scale)
-        h = int(size * self._scale)
-        src = self._pixmap
-        if self._blink_on and not self._blink_pixmap.isNull():
-            src = self._blink_pixmap
-        if not src.isNull():
-            scaled = src.scaled(w, h, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+    # ---------- 渲染 ----------
+    def _on_frame(self, pm):
+        self._frame = pm
+        self._update_display()
+
+    def _on_scale(self, s):
+        self._scale = s
+        self._update_display()
+
+    def _update_display(self):
+        size = int(self.cfg.get("pet_size", 176))
+        w = max(8, int(size * self._scale))
+        h = max(8, int(size * self._scale))
+        if self._frame is not None and not self._frame.isNull():
+            scaled = self._frame.scaled(w, h, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             self.label.setPixmap(scaled)
         self.resize(size + 20, size + 20)
         self.label.move(10, 10)
@@ -165,14 +207,6 @@ class PetWindow(QWidget):
         self.move(self._base_pos + self._anim_offset)
         self._reposition_bubbles()
 
-    def _on_scale(self, s):
-        self._scale = s
-        self._update_pixmap()
-
-    def _on_blink(self, on):
-        self._blink_on = on
-        self._update_pixmap()
-
     def _reposition_bubbles(self):
         if self.ai_bubble.isVisible():
             x, y = self._ai_tail()
@@ -182,7 +216,7 @@ class PetWindow(QWidget):
             self.user_bubble.update_text(self.user_bubble._text, x, y)
 
     def _pet_center(self):
-        size = int(self.cfg.get("pet_size", 160))
+        size = int(self.cfg.get("pet_size", 176))
         return self._base_pos.x() + size // 2, self._base_pos.y() + size // 2
 
     def _sync_screen_scale(self):
@@ -194,49 +228,161 @@ class PetWindow(QWidget):
         self.user_bubble.apply_scale(f)
         if self.confirm_bubble is not None:
             self.confirm_bubble.apply_scale(f)
-        # 尺寸变化后重新定位，保证不超出当前屏
         self._reposition_bubbles()
         if self.input_bar.isVisible():
             self._open_input()
 
-    # ---------- 拖拽 ----------
+    # ---------- 点击互动 / 拖拽 ----------
     def mousePressEvent(self, ev):
         self.note_user_activity()
         if ev.button() == Qt.LeftButton:
             self._drag_pos = ev.globalPos() - self._base_pos
+            self._dragging = False
+            self._last_drag_x = ev.globalPos().x()
         elif ev.button() == Qt.RightButton:
             self._show_menu(ev.globalPos())
 
     def mouseMoveEvent(self, ev):
         if self._drag_pos is not None:
             self._base_pos = ev.globalPos() - self._drag_pos
+            dx = ev.globalPos().x() - self._last_drag_x
+            self._last_drag_x = ev.globalPos().x()
             self.move(self._base_pos + self._anim_offset)
+            if abs(dx) > 2:
+                self._dragging = True
+                # 拖拽跑动动画：根据水平移动方向
+                if dx > 0:
+                    self.animator.play('run-right')
+                else:
+                    self.animator.play('run-left')
 
     def mouseReleaseEvent(self, ev):
         if ev.button() == Qt.LeftButton and self._drag_pos is not None:
-            # 几乎没移动 -> 视为点击，打开输入条
             moved = (ev.globalPos() - self._drag_pos) - self._base_pos
-            if abs(moved.x()) < 3 and abs(moved.y()) < 3:
-                self._open_input()
+            is_click = (not self._dragging) and abs(moved.x()) < 3 and abs(moved.y()) < 3
             self._drag_pos = None
-            self._save_position()
-            self._sync_screen_scale()  # 可能换到了另一块屏，重算大小
+            self._dragging = False
+            if is_click and self.cfg.get("interactive", True):
+                self._cycle_click_interaction()
+            else:
+                self.animator.stop_active()
+                self._save_position()
+                self._sync_screen_scale()  # 可能换到了另一块屏，重算大小
+
+    def wheelEvent(self, ev):
+        self.note_user_activity()
+        delta = ev.angleDelta().y()
+        if delta == 0:
+            return
+        step = 16 if delta > 0 else -16
+        size = int(self.cfg.get("pet_size", 176))
+        new_size = max(int(self.cfg.get("pet_size_min", 100)),
+                       min(int(self.cfg.get("pet_size_max", 360)), size + step))
+        if new_size != size:
+            self.cfg["pet_size"] = new_size
+            save_config(self.cfg)
+            self._update_display()
+            self._reposition_bubbles()
+
+    # ---------- 点击互动轮转：跳跃 → 压扁回弹 → 左右抖动 ----------
+    def _cycle_click_interaction(self):
+        acts = ['jump', 'squash', 'shake']
+        act = acts[self._click_seq % len(acts)]
+        self._click_seq += 1
+        if act == 'squash':
+            self.animator.play_squash()
+            self._show_anim_bubble(random.choice(TAP_TEXT['squash']))
+        else:
+            self.animator.play(act)
+            self._show_anim_bubble(random.choice(TAP_TEXT[act]))
+
+    # ---------- 闲时随机互动 ----------
+    def _schedule_idle_anim(self):
+        self._idle_anim_timer.start(random.randint(7000, 13000))
+
+    def _on_idle_anim(self):
+        try:
+            if not self.cfg.get("random_chatter", True):
+                return
+            # 对话/录音/输入中不打扰；长互动动画中也不打扰
+            if self.worker is not None and self.worker.isRunning():
+                return
+            if self._recording or self.input_bar.isVisible():
+                return
+            if self.animator.current_state() in ('walk', 'sleep', 'feed', 'coffee', 'pet-head', 'chat'):
+                return
+            if self.animator.is_active():
+                return
+            # 随机：动作 + 气泡（坐下时安静休息，不弹气泡）
+            if random.random() < 0.35:
+                self.animator.play('sit')          # 35% 概率坐下待机一会儿
+            else:
+                self.animator.play(random.choice(['shake', 'shake', 'jump']))
+                self._show_anim_bubble(random.choice(IDLE_TEXTS))
+        finally:
+            self._schedule_idle_anim()
+
+    # ---------- 互动气泡（不遮挡角色：位于头顶上方） ----------
+    def _show_anim_bubble(self, text: str):
+        x, y = self._ai_tail()
+        self.ai_bubble.show_text(text, x, y)
+        self.ai_bubble.keep_alive(4500)
 
     # ---------- 菜单 ----------
     def _show_menu(self, global_pos):
         menu = QMenu()
-        act_chat = menu.addAction("聊天")
-        act_voice = menu.addAction("语音说话")
-        act_settings = menu.addAction("设置")
-        act_reset = menu.addAction("重置对话")
-        act_hide = menu.addAction("隐藏")
+        act_chat = menu.addAction("💬 陪我聊聊天")
+        act_voice = menu.addAction("🎤 语音说话")
         menu.addSeparator()
-        act_quit = menu.addAction("退出")
-        chosen = menu.exec_(global_pos)
+        act_pet = menu.addAction("💗 摸摸头")
+        act_feed = menu.addAction("🍰 喂吃的")
+        act_walk = menu.addAction("🚶 让她走路")
+        act_coffee = menu.addAction("☕ 请她喝咖啡")
+        act_sleep = menu.addAction("😴 让她睡觉")
+        menu.addSeparator()
+        act_follow = menu.addAction("🖱 跟随鼠标")
+        act_follow.setCheckable(True)
+        act_follow.setChecked(bool(self.cfg.get("follow_mouse", False)))
+        # 调整大小子菜单
+        size_menu = menu.addMenu("🔍 调整大小")
+        cur = int(self.cfg.get("pet_size", 176))
+        for px, name in SIZE_LEVELS:
+            a = size_menu.addAction(f"{name}（{px}px）")
+            a.setCheckable(True)
+            a.setChecked(abs(cur - px) <= 8)
+            a.triggered.connect(lambda checked, p=px: self._set_pet_size(p))
+        act_top = menu.addAction("📌 始终置顶")
+        act_top.setCheckable(True)
+        act_top.setChecked(bool(self.cfg.get("always_on_top", True)))
+        menu.addSeparator()
+        act_settings = menu.addAction("⚙ 设置")
+        act_reset = menu.addAction("🔄 重置对话")
+        act_hide = menu.addAction("👻 隐藏")
+        act_quit = menu.addAction("❌ 退出程序")
+        chosen = menu.exec(global_pos)
         if chosen == act_chat:
             self._open_input()
         elif chosen == act_voice:
             self._toggle_voice_input()
+        elif chosen == act_pet:
+            self.animator.play('pet-head')
+            self._show_anim_bubble(random.choice(PET_HEAD_TEXTS))
+        elif chosen == act_feed:
+            self.animator.play('feed')
+            self._show_anim_bubble(random.choice(FEED_TEXTS))
+        elif chosen == act_walk:
+            self.animator.play('walk')
+            self._show_anim_bubble(random.choice(WALK_TEXTS))
+        elif chosen == act_coffee:
+            self.animator.play('coffee')
+            self._show_anim_bubble(random.choice(COFFEE_TEXTS))
+        elif chosen == act_sleep:
+            self.animator.play('sleep')
+            self._show_anim_bubble(random.choice(SLEEP_TEXTS))
+        elif chosen == act_follow:
+            self._toggle_follow(bool(act_follow.isChecked()))
+        elif chosen == act_top:
+            self._toggle_topmost(bool(act_top.isChecked()))
         elif chosen == act_settings:
             self.open_settings()
         elif chosen == act_reset:
@@ -247,6 +393,62 @@ class PetWindow(QWidget):
         elif chosen == act_quit:
             self._quit()
 
+    def _set_pet_size(self, px: int):
+        self.cfg["pet_size"] = px
+        save_config(self.cfg)
+        self._update_display()
+        self._reposition_bubbles()
+        self._sync_screen_scale()
+
+    def _toggle_follow(self, on: bool):
+        self.cfg["follow_mouse"] = bool(on)
+        save_config(self.cfg)
+        if on:
+            self._follow_timer.start()
+            self._show_anim_bubble("好呀，我跟着你走~")
+        else:
+            self._follow_timer.stop()
+            self.animator.stop_active()
+            self._save_position()
+            self._show_anim_bubble("好啦，我停在这里~")
+
+    def _toggle_topmost(self, on: bool):
+        self.cfg["always_on_top"] = bool(on)
+        save_config(self.cfg)
+        self._apply_topmost_flag()
+
+    def _apply_topmost_flag(self):
+        self.setWindowFlag(Qt.WindowStaysOnTopHint, bool(self.cfg.get("always_on_top", True)))
+        self.show()
+
+    # ---------- 跟随鼠标 ----------
+    def _follow_tick(self):
+        if not self.cfg.get("follow_mouse", False):
+            return
+        try:
+            cur = QCursor.pos()
+        except Exception:
+            return
+        size = int(self.cfg.get("pet_size", 176))
+        cx = self._base_pos.x() + size // 2
+        cy = self._base_pos.y() + size // 2
+        dx = cur.x() - cx
+        dy = cur.y() - cy
+        dist = math.hypot(dx, dy)
+        if dist < 26:
+            if self.animator.is_active():
+                self.animator.stop_active()
+            return
+        speed = min(max(dist * 0.18, 4), 28)
+        nx = self._base_pos.x() + (dx / dist) * speed
+        ny = self._base_pos.y() + (dy / dist) * speed
+        self._base_pos = QPoint(int(round(nx)), int(round(ny)))
+        self.move(self._base_pos + self._anim_offset)
+        if abs(dx) > 6:
+            self.animator.play('run-right' if dx > 0 else 'run-left')
+        elif self.animator.is_active():
+            self.animator.stop_active()
+
     # ---------- 托盘 ----------
     def _build_tray(self):
         icon_path = resource_path("assets/tray_icon.png")
@@ -255,10 +457,13 @@ class PetWindow(QWidget):
         if QSystemTrayIcon.isSystemTrayAvailable():
             self.tray = QSystemTrayIcon(icon, self)
             menu = QMenu()
-            menu.addAction("显示/隐藏", self._toggle_visible)
-            menu.addAction("设置", self.open_settings)
+            menu.addAction("💬 聊天", self._open_input)
+            menu.addAction("🎤 语音说话", self._toggle_voice_input)
             menu.addSeparator()
-            menu.addAction("退出", self._quit)
+            menu.addAction("⚙ 设置", self.open_settings)
+            menu.addAction("显示/隐藏", self._toggle_visible)
+            menu.addSeparator()
+            menu.addAction("❌ 退出", self._quit)
             self.tray.setContextMenu(menu)
             self.tray.activated.connect(self._tray_activated)
             self.tray.show()
@@ -278,10 +483,9 @@ class PetWindow(QWidget):
     def _open_input(self):
         self.input_bar.adjustSize()
         self.note_user_activity()
-        size = int(self.cfg.get("pet_size", 160))
+        size = int(self.cfg.get("pet_size", 176))
         x = self._base_pos.x() + size // 2 - self.input_bar.width() // 2
         y = self._base_pos.y() + size + 16
-        # 以角色所在屏幕为边界，使输入条跟随角色到副屏且完整显示在该屏
         cx, cy = self._pet_center()
         x, y = clamp_to_screen(x, y, self.input_bar.width(), self.input_bar.height(), cx, cy)
         self.input_bar.move(x, y)
@@ -332,7 +536,6 @@ class PetWindow(QWidget):
         self.ai_bubble.keep_alive(8000)
 
     def _on_confirm_requested(self, desc: str):
-        # 由 worker 线程发出，转主线程处理；每次新建一个确认气泡，避免复用顶层窗口弹不出
         self._pending_confirm_worker = self.worker
         if self.confirm_bubble is not None:
             self.confirm_bubble.confirmed.disconnect()
@@ -351,6 +554,7 @@ class PetWindow(QWidget):
     def _on_reminder_fire(self, text: str, rid):
         msg = f"⏰ 提醒：{text}"
         self._show_ai_bubble(msg)
+        self.animator.play('reminder')
         if self.tray:
             try:
                 self.tray.showMessage("小助手的提醒", text, QSystemTrayIcon.Information, 8000)
@@ -376,7 +580,6 @@ class PetWindow(QWidget):
 
     def _on_finished(self):
         if self.cfg.get("enable_tts", True) and self._reply_buf.strip():
-            # 播报期间保持气泡不自动淡出，倒计时等 speakFinished 后启动
             self.ai_bubble.keep_alive(60000)
             self.user_bubble.keep_alive(60000)
             self.tts.set_params(
@@ -401,18 +604,15 @@ class PetWindow(QWidget):
         self._begin_idle_countdown()
 
     def _begin_idle_countdown(self):
-        """本轮对话结束：把气泡自身定时淡出让位于空闲计时器，避免两套计时冲突。"""
         self.ai_bubble.keep_alive(60000)
         self.user_bubble.keep_alive(60000)
         self._idle_timer.start(IDLE_HIDE_MS)
 
     def note_user_activity(self):
-        """任一用户交互：若空闲倒计时在跑则重新计时。"""
         if self._idle_timer.isActive():
             self._begin_idle_countdown()
 
     def _on_idle_timeout(self):
-        # 正在录音 / 确认弹窗在前台 / 用户正在输入 → 不误隐藏，重新计时
         if self._recording:
             self._begin_idle_countdown()
             return
@@ -426,9 +626,8 @@ class PetWindow(QWidget):
         self.user_bubble.force_fade_out()
 
     def eventFilter(self, obj, ev):
-        # 监听本应用内的键盘/鼠标/滚轮活动，用于重置空闲计时
         t = ev.type()
-        if t in (QEvent.KeyPress, QEvent.MouseButtonPress, QEvent.Wheel):
+        if t in (QEvent.Type.KeyPress, QEvent.Type.MouseButtonPress, QEvent.Type.Wheel):
             self.note_user_activity()
         return super().eventFilter(obj, ev)
 
@@ -452,7 +651,7 @@ class PetWindow(QWidget):
             self.tts.stop()
         try:
             self.recorder.start()
-        except Exception as e:
+        except Exception:
             self._show_ai_bubble("麦克风打不开")
             return
         self._recording = True
@@ -488,7 +687,6 @@ class PetWindow(QWidget):
             self.animator.set_state(Animator.IDLE)
             self.ai_bubble.update_text("没识别到内容", *self._ai_tail())
             return
-        # 识别到的话作为用户输入，走同样的对话流程
         self._on_send(text)
 
     def _on_asr_error(self, msg: str):
@@ -502,35 +700,36 @@ class PetWindow(QWidget):
     def _show_ai_bubble(self, text: str):
         x, y = self._ai_tail()
         self.ai_bubble.show_text(text, x, y)
+        self._begin_idle_countdown()  # 无操作 10 秒后自动消失（期间有操作会重置）
 
     def _show_user_bubble(self, text: str):
         x, y = self._user_tail()
         self.user_bubble.show_text(text, x, y)
 
     def _head_top(self) -> QPoint:
-        size = int(self.cfg.get("pet_size", 160))
+        size = int(self.cfg.get("pet_size", 176))
         return QPoint(self._base_pos.x() + size // 2, self._base_pos.y())
 
     def _ai_tail(self):
         """AI 气泡尾巴锚点（角色右上）"""
-        size = int(self.cfg.get("pet_size", 160))
+        size = int(self.cfg.get("pet_size", 176))
         return (self._base_pos.x() + int(size * 0.62), self._base_pos.y() + 4)
 
     def _user_tail(self):
         """用户气泡尾巴锚点（角色左上）"""
-        size = int(self.cfg.get("pet_size", 160))
+        size = int(self.cfg.get("pet_size", 176))
         return (self._base_pos.x() + int(size * 0.38), self._base_pos.y() + 4)
 
     # ---------- 设置 ----------
     def open_settings(self):
         dlg = SettingsDialog(self.cfg, self, memory=self.memory)
-        if dlg.exec_() == SettingsDialog.Accepted:
+        if dlg.exec() == SettingsDialog.Accepted:
             self.cfg = dlg.result_config()
             save_config(self.cfg)
             self._apply_config()
 
     def _apply_config(self):
-        self._load_pixmap()
+        self._update_display()
         self.setWindowOpacity(max(0.4, self.cfg.get("opacity", 255) / 255.0))
         self.tts.set_params(voice=self.cfg.get("tts_voice", "Cherry"))
         self.ctx["enable_tools"] = self.cfg.get("enable_tools", True)
@@ -540,17 +739,16 @@ class PetWindow(QWidget):
             topk=int(self.cfg.get("memory_topk", 4)),
         )
         self.proactive.update_cfg(self.cfg)
+        self._apply_topmost_flag()
         self._start_hotkeys()
 
     # ---------- 热键 ----------
     def _start_hotkeys(self):
-        # 聊天输入热键
         if self.hotkey:
             self.hotkey.stop()
         self.hotkey = HotkeyManager(self.cfg.get("hotkey", "<ctrl>+<shift>+<space>"), self)
         self.hotkey.activated.connect(self._toggle_popup)
         self.hotkey.start()
-        # 语音输入热键
         if self.voice_hotkey:
             self.voice_hotkey.stop()
             self.voice_hotkey = None
@@ -561,16 +759,14 @@ class PetWindow(QWidget):
 
     # ---------- 位置持久化 ----------
     def _restore_position(self):
-        size = int(self.cfg.get("pet_size", 160))
+        size = int(self.cfg.get("pet_size", 176))
         if not self.cfg.get("position_set", False):
-            # 从未设置过：默认放在主屏右下角
             screen = QApplication.primaryScreen().availableGeometry()
             x = screen.right() - size - 40
             y = screen.bottom() - size - 60
         else:
             x = self.cfg.get("position_x", 0)
             y = self.cfg.get("position_y", 0)
-            # 用整个虚拟桌面做包含（允许负坐标），防止显示器变更后遗留在屏外
             x, y = clamp_to_virtual(x, y, size + 20, size + 20)
         self._base_pos = QPoint(x, y)
         self.move(self._base_pos)

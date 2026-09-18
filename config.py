@@ -8,7 +8,9 @@ DEFAULT_CONFIG = {
     "model": "qwen-turbo",
     "system_prompt": "你是一个可爱的桌面小助手，说话简洁、活泼、有温度，回答尽量简短（每次不超过120字）。",
     "character_image": "assets/character.png",
-    "pet_size": 160,
+    "pet_size": 176,
+    "pet_size_min": 100,
+    "pet_size_max": 360,
     "opacity": 255,
     "hotkey": "<ctrl>+<shift>+<space>",
     "enable_tts": True,
@@ -28,6 +30,11 @@ DEFAULT_CONFIG = {
     "position_set": False,
     "auto_start": False,
     "first_run": True,
+    # 互动体验（桌宠增强）
+    "follow_mouse": False,      # 跟随鼠标
+    "always_on_top": True,      # 始终置顶
+    "interactive": True,        # 点击轮流互动
+    "random_chatter": True,     # 闲时随机气泡
 }
 
 

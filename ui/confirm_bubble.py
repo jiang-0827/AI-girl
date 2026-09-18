@@ -1,14 +1,14 @@
 """确认气泡 - 需要用户批准的危险/系统操作时弹出，带 确认/取消 按钮"""
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import (
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QFont
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
 )
 
 
 class ConfirmBubble(QWidget):
     """显示一条待确认操作 + 确认/取消按钮"""
-    confirmed = pyqtSignal(bool)
+    confirmed = Signal(bool)
 
     def __init__(self, parent=None):
         super().__init__(parent, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
@@ -107,6 +107,6 @@ class ConfirmBubble(QWidget):
 
 
 def QApplication_geometry():
-    from PyQt5.QtWidgets import QApplication
+    from PySide6.QtWidgets import QApplication
     g = QApplication.primaryScreen().availableGeometry()
     return (g.width(), g.height())

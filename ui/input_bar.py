@@ -1,15 +1,15 @@
 """极简输入条 - 悬浮在角色下方的一行输入，含 发送 / 语音 / 取消 按钮"""
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import (
+from PySide6.QtCore import Qt, QEvent, Signal
+from PySide6.QtGui import QFont
+from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QLineEdit, QPushButton, QGraphicsDropShadowEffect
 )
 
 
 class InputBar(QWidget):
     """轻量输入气泡条，不是聊天面板，仅一行输入 + 三个按钮"""
-    sendRequested = pyqtSignal(str)
-    voiceToggled = pyqtSignal()
+    sendRequested = Signal(str)
+    voiceToggled = Signal()
 
     # 基准尺寸（主屏 100% 缩放时）
     BASE_HEIGHT = 52
@@ -84,7 +84,7 @@ class InputBar(QWidget):
         self.edit.textChanged.connect(lambda _: self.adjustSize())
 
     def eventFilter(self, obj, ev):
-        if obj is self.edit and ev.type() == ev.KeyPress:
+        if obj is self.edit and ev.type() == QEvent.Type.KeyPress:
             if ev.key() in (Qt.Key_Return, Qt.Key_Enter):
                 self._do_send()
                 return True

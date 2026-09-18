@@ -1,7 +1,7 @@
 """对话气泡 - 指向角色的漫画式气泡，支持 user / ai 两种角色样式"""
-from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation, QRect
-from PyQt5.QtGui import QPainter, QColor, QFont, QPainterPath, QFontMetrics
-from PyQt5.QtWidgets import QWidget, QGraphicsOpacityEffect
+from PySide6.QtCore import Qt, QTimer, QPropertyAnimation, QRect
+from PySide6.QtGui import QPainter, QColor, QFont, QPainterPath, QFontMetrics
+from PySide6.QtWidgets import QWidget, QGraphicsOpacityEffect
 
 from utils.screen import clamp_to_virtual, clamp_to_screen
 
@@ -117,7 +117,7 @@ class ChatBubble(QWidget):
         self._anim.setStartValue(0.0)
         self._anim.setEndValue(1.0)
         self._anim.start()
-        self.keep_alive(6000)
+        self.keep_alive(10000)  # 无操作默认 10 秒后淡出
 
     def _start_fade_out(self):
         self._anim.stop()

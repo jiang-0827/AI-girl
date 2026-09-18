@@ -1,14 +1,14 @@
 """聊天输入弹窗 - 半透明磨砂背景，含对话历史和输入框（基于消息列表模型渲染）"""
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import (
+from PySide6.QtCore import Qt, QEvent, Signal
+from PySide6.QtGui import QFont
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QLabel
 )
 
 
 class ChatPopup(QWidget):
     """聊天窗口：显示对话历史 + 输入发送"""
-    sendRequested = pyqtSignal(str)
+    sendRequested = Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
@@ -77,7 +77,7 @@ class ChatPopup(QWidget):
 
     # ---- 事件处理 ----
     def eventFilter(self, obj, ev):
-        if obj is self.input and ev.type() == ev.KeyPress:
+        if obj is self.input and ev.type() == QEvent.Type.KeyPress:
             if ev.key() in (Qt.Key_Return, Qt.Key_Enter) and not (ev.modifiers() & Qt.ShiftModifier):
                 self._do_send()
                 return True

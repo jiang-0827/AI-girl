@@ -1,6 +1,6 @@
 """主动关怀引擎 - 空闲问候 / 整点报时 / 久坐提醒，通过回调触发主动播报"""
 import time
-from PyQt5.QtCore import QObject, QTimer, pyqtSignal
+from PySide6.QtCore import QObject, QTimer, Signal
 
 IDLE_GREETINGS = [
     "忙了挺久啦，要不要休息一下？",
@@ -12,7 +12,7 @@ IDLE_GREETINGS = [
 
 class ProactiveEngine(QObject):
     """定期检查是否该主动说话，发出 speakRequested 信号"""
-    speakRequested = pyqtSignal(str)
+    speakRequested = Signal(str)
 
     def __init__(self, cfg, parent=None):
         super().__init__(parent)

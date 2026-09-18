@@ -1,0 +1,5 @@
+﻿
+> com-doubao-lanlanpet@1.0.0 preflight
+> node tools/preflight.mjs
+
+Dependency preflight: PASS (locked toolchain present).

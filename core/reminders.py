@@ -2,7 +2,7 @@
 import os
 import json
 import time
-from PyQt5.QtCore import QObject, QTimer
+from PySide6.QtCore import QObject, QTimer
 
 from utils.resource_path import app_dir
 

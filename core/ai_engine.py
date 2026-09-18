@@ -3,7 +3,7 @@ import json
 import time
 import threading
 import requests
-from PyQt5.QtCore import QThread, pyqtSignal
+from PySide6.QtCore import QThread, Signal
 
 from core.tools import SCHEMAS, run as run_tool, needs_confirm, is_forbidden, describe as describe_tool
 
@@ -94,11 +94,11 @@ class AIEngine:
 class ChatWorker(QThread):
     """执行一轮对话：可能触发多次工具调用，最终把回答以打字机方式流式输出。
     危险操作通过 confirmRequested 请求 UI 确认，UI 调 resolve_confirmation()。"""
-    token_received = pyqtSignal(str)      # 最终回答增量
-    tool_activity = pyqtSignal(str)       # 正在执行的工具描述
-    confirmRequested = pyqtSignal(str)    # 需要确认的操作描述
-    replyFinished = pyqtSignal()          # 不能用 finished（会覆盖 QThread 内置信号）
-    error = pyqtSignal(str)
+    token_received = Signal(str)      # 最终回答增量
+    tool_activity = Signal(str)       # 正在执行的工具描述
+    confirmRequested = Signal(str)    # 需要确认的操作描述
+    replyFinished = Signal()          # 不能用 finished（会覆盖 QThread 内置信号）
+    error = Signal(str)
 
     def __init__(self, engine, user_text, ctx, parent=None):
         super().__init__(parent)

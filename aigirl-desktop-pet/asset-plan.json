@@ -1,0 +1,607 @@
+{
+  "schemaVersion": 5,
+  "coreIp": "core-ip/core-ip.png",
+  "character": {
+    "name": "蓝蓝",
+    "kind": "person",
+    "preserve": [
+      "浅蓝色双马尾",
+      "蓝色大眼睛",
+      "黑色蝴蝶结发饰",
+      "白色圆点发饰",
+      "蓝绿色颈链",
+      "黑色露肩短上衣",
+      "呆毛"
+    ],
+    "style": "custom",
+    "generationStylePolicy": "preserve-established-art-style"
+  },
+  "generationOrder": [
+    "confirm-core-ip",
+    "pilot-idle-group",
+    "process-and-qa-pilot",
+    "generate-each-remaining-state-as-one-sequence",
+    "retry-only-failed-state-frames"
+  ],
+  "prohibitedElements": [
+    "human hands",
+    "additional characters",
+    "unconfirmed props",
+    "text or lettering",
+    "logos or watermarks",
+    "decorative borders",
+    "scenery or rooms",
+    "ground or platform",
+    "cast shadows or contact shadows",
+    "glow or background color blocks"
+  ],
+  "states": [
+    {
+      "id": "idle",
+      "triggers": [
+        "app:start",
+        "ambient:idle"
+      ],
+      "frameDurationMs": 900,
+      "generationMode": "single-state-sequence",
+      "sequencePrompt": "Reference the confirmed core IP image core-ip/core-ip.png. Create one coherent 4-frame sequence for state idle triggered by app:start, ambient:idle. Generate the whole state as one sequence with a fixed camera, body scale, head center, and foot baseline. Keep the same face, colors, material, body proportions, and signature accessories in every frame. Show the complete body with clear source margin. Keep the character's established non-photographic art style and level of stylization unchanged. Use real alpha when supported; otherwise place the subject on one solid flat background color that differs clearly from the character (background only, do not restyle the character) without a checkerboard, gradient, scenery, ground, or shadow. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks.",
+      "frames": [
+        {
+          "file": "idle-01.png",
+          "index": 1,
+          "count": 4,
+          "phase": "准备姿势；与母版保持同一身体尺度和脚底基线",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state idle, render frame 1/4. 准备姿势；与母版保持同一身体尺度和脚底基线. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "idle-02.png",
+          "index": 2,
+          "count": 4,
+          "phase": "动作开始；只改变完成动作所需的局部姿态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state idle, render frame 2/4. 动作开始；只改变完成动作所需的局部姿态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "idle-03.png",
+          "index": 3,
+          "count": 4,
+          "phase": "主动作或反馈峰值；保持身份、镜头和身体比例",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state idle, render frame 3/4. 主动作或反馈峰值；保持身份、镜头和身体比例. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "idle-04.png",
+          "index": 4,
+          "count": 4,
+          "phase": "回到基态；能够无跳变衔接 idle",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state idle, render frame 4/4. 回到基态；能够无跳变衔接 idle. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        }
+      ]
+    },
+    {
+      "id": "blink",
+      "triggers": [
+        "ambient:blink"
+      ],
+      "frameDurationMs": 75,
+      "generationMode": "single-state-sequence",
+      "sequencePrompt": "Reference the confirmed core IP image core-ip/core-ip.png. Create one coherent 5-frame sequence for state blink triggered by ambient:blink. Generate the whole state as one sequence with a fixed camera, body scale, head center, and foot baseline. Keep the same face, colors, material, body proportions, and signature accessories in every frame. Show the complete body with clear source margin. Keep the character's established non-photographic art style and level of stylization unchanged. Use real alpha when supported; otherwise place the subject on one solid flat background color that differs clearly from the character (background only, do not restyle the character) without a checkerboard, gradient, scenery, ground, or shadow. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks.",
+      "frames": [
+        {
+          "file": "blink-01.png",
+          "index": 1,
+          "count": 5,
+          "phase": "准备姿势；与母版保持同一身体尺度和脚底基线",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state blink, render frame 1/5. 准备姿势；与母版保持同一身体尺度和脚底基线. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "blink-02.png",
+          "index": 2,
+          "count": 5,
+          "phase": "动作开始；只改变完成动作所需的局部姿态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state blink, render frame 2/5. 动作开始；只改变完成动作所需的局部姿态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "blink-03.png",
+          "index": 3,
+          "count": 5,
+          "phase": "主动作或反馈峰值；保持身份、镜头和身体比例",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state blink, render frame 3/5. 主动作或反馈峰值；保持身份、镜头和身体比例. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "blink-04.png",
+          "index": 4,
+          "count": 5,
+          "phase": "回弹或回位过渡；逐步恢复基态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state blink, render frame 4/5. 回弹或回位过渡；逐步恢复基态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "blink-05.png",
+          "index": 5,
+          "count": 5,
+          "phase": "回到基态；能够无跳变衔接 idle",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state blink, render frame 5/5. 回到基态；能够无跳变衔接 idle. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        }
+      ]
+    },
+    {
+      "id": "chat",
+      "triggers": [
+        "interaction:chat"
+      ],
+      "frameDurationMs": 140,
+      "generationMode": "single-state-sequence",
+      "sequencePrompt": "Reference the confirmed core IP image core-ip/core-ip.png. Create one coherent 5-frame sequence for state chat triggered by interaction:chat. Generate the whole state as one sequence with a fixed camera, body scale, head center, and foot baseline. Keep the same face, colors, material, body proportions, and signature accessories in every frame. Show the complete body with clear source margin. Keep the character's established non-photographic art style and level of stylization unchanged. Use real alpha when supported; otherwise place the subject on one solid flat background color that differs clearly from the character (background only, do not restyle the character) without a checkerboard, gradient, scenery, ground, or shadow. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks.",
+      "frames": [
+        {
+          "file": "chat-01.png",
+          "index": 1,
+          "count": 5,
+          "phase": "准备姿势；与母版保持同一身体尺度和脚底基线",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state chat, render frame 1/5. 准备姿势；与母版保持同一身体尺度和脚底基线. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "chat-02.png",
+          "index": 2,
+          "count": 5,
+          "phase": "动作开始；只改变完成动作所需的局部姿态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state chat, render frame 2/5. 动作开始；只改变完成动作所需的局部姿态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "chat-03.png",
+          "index": 3,
+          "count": 5,
+          "phase": "主动作或反馈峰值；保持身份、镜头和身体比例",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state chat, render frame 3/5. 主动作或反馈峰值；保持身份、镜头和身体比例. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "chat-04.png",
+          "index": 4,
+          "count": 5,
+          "phase": "回弹或回位过渡；逐步恢复基态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state chat, render frame 4/5. 回弹或回位过渡；逐步恢复基态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "chat-05.png",
+          "index": 5,
+          "count": 5,
+          "phase": "回到基态；能够无跳变衔接 idle",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state chat, render frame 5/5. 回到基态；能够无跳变衔接 idle. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        }
+      ]
+    },
+    {
+      "id": "jump",
+      "triggers": [
+        "pointer:tap"
+      ],
+      "frameDurationMs": 110,
+      "generationMode": "single-state-sequence",
+      "sequencePrompt": "Reference the confirmed core IP image core-ip/core-ip.png. Create one coherent 5-frame sequence for state jump triggered by pointer:tap. Generate the whole state as one sequence with a fixed camera, body scale, head center, and foot baseline. Keep the same face, colors, material, body proportions, and signature accessories in every frame. Show the complete body with clear source margin. Keep the character's established non-photographic art style and level of stylization unchanged. Use real alpha when supported; otherwise place the subject on one solid flat background color that differs clearly from the character (background only, do not restyle the character) without a checkerboard, gradient, scenery, ground, or shadow. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks.",
+      "frames": [
+        {
+          "file": "jump-01.png",
+          "index": 1,
+          "count": 5,
+          "phase": "准备姿势；与母版保持同一身体尺度和脚底基线",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state jump, render frame 1/5. 准备姿势；与母版保持同一身体尺度和脚底基线. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "jump-02.png",
+          "index": 2,
+          "count": 5,
+          "phase": "动作开始；只改变完成动作所需的局部姿态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state jump, render frame 2/5. 动作开始；只改变完成动作所需的局部姿态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "jump-03.png",
+          "index": 3,
+          "count": 5,
+          "phase": "主动作或反馈峰值；保持身份、镜头和身体比例",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state jump, render frame 3/5. 主动作或反馈峰值；保持身份、镜头和身体比例. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "jump-04.png",
+          "index": 4,
+          "count": 5,
+          "phase": "回弹或回位过渡；逐步恢复基态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state jump, render frame 4/5. 回弹或回位过渡；逐步恢复基态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "jump-05.png",
+          "index": 5,
+          "count": 5,
+          "phase": "回到基态；能够无跳变衔接 idle",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state jump, render frame 5/5. 回到基态；能够无跳变衔接 idle. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        }
+      ]
+    },
+    {
+      "id": "shake",
+      "triggers": [
+        "ambient:random"
+      ],
+      "frameDurationMs": 80,
+      "generationMode": "single-state-sequence",
+      "sequencePrompt": "Reference the confirmed core IP image core-ip/core-ip.png. Create one coherent 5-frame sequence for state shake triggered by ambient:random. Generate the whole state as one sequence with a fixed camera, body scale, head center, and foot baseline. Keep the same face, colors, material, body proportions, and signature accessories in every frame. Show the complete body with clear source margin. Keep the character's established non-photographic art style and level of stylization unchanged. Use real alpha when supported; otherwise place the subject on one solid flat background color that differs clearly from the character (background only, do not restyle the character) without a checkerboard, gradient, scenery, ground, or shadow. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks.",
+      "frames": [
+        {
+          "file": "shake-01.png",
+          "index": 1,
+          "count": 5,
+          "phase": "准备姿势；与母版保持同一身体尺度和脚底基线",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state shake, render frame 1/5. 准备姿势；与母版保持同一身体尺度和脚底基线. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "shake-02.png",
+          "index": 2,
+          "count": 5,
+          "phase": "动作开始；只改变完成动作所需的局部姿态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state shake, render frame 2/5. 动作开始；只改变完成动作所需的局部姿态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "shake-03.png",
+          "index": 3,
+          "count": 5,
+          "phase": "主动作或反馈峰值；保持身份、镜头和身体比例",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state shake, render frame 3/5. 主动作或反馈峰值；保持身份、镜头和身体比例. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "shake-04.png",
+          "index": 4,
+          "count": 5,
+          "phase": "回弹或回位过渡；逐步恢复基态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state shake, render frame 4/5. 回弹或回位过渡；逐步恢复基态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "shake-05.png",
+          "index": 5,
+          "count": 5,
+          "phase": "回到基态；能够无跳变衔接 idle",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state shake, render frame 5/5. 回到基态；能够无跳变衔接 idle. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        }
+      ]
+    },
+    {
+      "id": "run-left",
+      "triggers": [
+        "movement:left"
+      ],
+      "frameDurationMs": 90,
+      "generationMode": "single-state-sequence",
+      "sequencePrompt": "Reference the confirmed core IP image core-ip/core-ip.png. Create one coherent 6-frame sequence for state run-left triggered by movement:left. Generate the whole state as one sequence with a fixed camera, body scale, head center, and foot baseline. Keep the same face, colors, material, body proportions, and signature accessories in every frame. Show the complete body with clear source margin. Keep the character's established non-photographic art style and level of stylization unchanged. Use real alpha when supported; otherwise place the subject on one solid flat background color that differs clearly from the character (background only, do not restyle the character) without a checkerboard, gradient, scenery, ground, or shadow. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks.",
+      "frames": [
+        {
+          "file": "run-left-01.png",
+          "index": 1,
+          "count": 6,
+          "phase": "准备姿势；与母版保持同一身体尺度和脚底基线",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state run-left, render frame 1/6. 准备姿势；与母版保持同一身体尺度和脚底基线. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "run-left-02.png",
+          "index": 2,
+          "count": 6,
+          "phase": "动作开始；只改变完成动作所需的局部姿态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state run-left, render frame 2/6. 动作开始；只改变完成动作所需的局部姿态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "run-left-03.png",
+          "index": 3,
+          "count": 6,
+          "phase": "主动作或反馈峰值；保持身份、镜头和身体比例",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state run-left, render frame 3/6. 主动作或反馈峰值；保持身份、镜头和身体比例. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "run-left-04.png",
+          "index": 4,
+          "count": 6,
+          "phase": "主动作或反馈峰值；保持身份、镜头和身体比例",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state run-left, render frame 4/6. 主动作或反馈峰值；保持身份、镜头和身体比例. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "run-left-05.png",
+          "index": 5,
+          "count": 6,
+          "phase": "回弹或回位过渡；逐步恢复基态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state run-left, render frame 5/6. 回弹或回位过渡；逐步恢复基态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "run-left-06.png",
+          "index": 6,
+          "count": 6,
+          "phase": "回到基态；能够无跳变衔接 idle",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state run-left, render frame 6/6. 回到基态；能够无跳变衔接 idle. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        }
+      ]
+    },
+    {
+      "id": "run-right",
+      "triggers": [
+        "movement:right"
+      ],
+      "frameDurationMs": 90,
+      "generationMode": "single-state-sequence",
+      "sequencePrompt": "Reference the confirmed core IP image core-ip/core-ip.png. Create one coherent 6-frame sequence for state run-right triggered by movement:right. Generate the whole state as one sequence with a fixed camera, body scale, head center, and foot baseline. Keep the same face, colors, material, body proportions, and signature accessories in every frame. Show the complete body with clear source margin. Keep the character's established non-photographic art style and level of stylization unchanged. Use real alpha when supported; otherwise place the subject on one solid flat background color that differs clearly from the character (background only, do not restyle the character) without a checkerboard, gradient, scenery, ground, or shadow. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks.",
+      "frames": [
+        {
+          "file": "run-right-01.png",
+          "index": 1,
+          "count": 6,
+          "phase": "准备姿势；与母版保持同一身体尺度和脚底基线",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state run-right, render frame 1/6. 准备姿势；与母版保持同一身体尺度和脚底基线. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "run-right-02.png",
+          "index": 2,
+          "count": 6,
+          "phase": "动作开始；只改变完成动作所需的局部姿态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state run-right, render frame 2/6. 动作开始；只改变完成动作所需的局部姿态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "run-right-03.png",
+          "index": 3,
+          "count": 6,
+          "phase": "主动作或反馈峰值；保持身份、镜头和身体比例",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state run-right, render frame 3/6. 主动作或反馈峰值；保持身份、镜头和身体比例. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "run-right-04.png",
+          "index": 4,
+          "count": 6,
+          "phase": "主动作或反馈峰值；保持身份、镜头和身体比例",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state run-right, render frame 4/6. 主动作或反馈峰值；保持身份、镜头和身体比例. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "run-right-05.png",
+          "index": 5,
+          "count": 6,
+          "phase": "回弹或回位过渡；逐步恢复基态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state run-right, render frame 5/6. 回弹或回位过渡；逐步恢复基态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "run-right-06.png",
+          "index": 6,
+          "count": 6,
+          "phase": "回到基态；能够无跳变衔接 idle",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state run-right, render frame 6/6. 回到基态；能够无跳变衔接 idle. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        }
+      ]
+    },
+    {
+      "id": "pet-head",
+      "triggers": [
+        "interaction:pet-head"
+      ],
+      "frameDurationMs": 130,
+      "generationMode": "single-state-sequence",
+      "sequencePrompt": "Reference the confirmed core IP image core-ip/core-ip.png. Create one coherent 5-frame sequence for state pet-head triggered by interaction:pet-head. Generate the whole state as one sequence with a fixed camera, body scale, head center, and foot baseline. Keep the same face, colors, material, body proportions, and signature accessories in every frame. Show the complete body with clear source margin. Keep the character's established non-photographic art style and level of stylization unchanged. Use real alpha when supported; otherwise place the subject on one solid flat background color that differs clearly from the character (background only, do not restyle the character) without a checkerboard, gradient, scenery, ground, or shadow. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks.",
+      "frames": [
+        {
+          "file": "pet-head-01.png",
+          "index": 1,
+          "count": 5,
+          "phase": "准备姿势；与母版保持同一身体尺度和脚底基线",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state pet-head, render frame 1/5. 准备姿势；与母版保持同一身体尺度和脚底基线. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "pet-head-02.png",
+          "index": 2,
+          "count": 5,
+          "phase": "动作开始；只改变完成动作所需的局部姿态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state pet-head, render frame 2/5. 动作开始；只改变完成动作所需的局部姿态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "pet-head-03.png",
+          "index": 3,
+          "count": 5,
+          "phase": "主动作或反馈峰值；保持身份、镜头和身体比例",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state pet-head, render frame 3/5. 主动作或反馈峰值；保持身份、镜头和身体比例. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "pet-head-04.png",
+          "index": 4,
+          "count": 5,
+          "phase": "回弹或回位过渡；逐步恢复基态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state pet-head, render frame 4/5. 回弹或回位过渡；逐步恢复基态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "pet-head-05.png",
+          "index": 5,
+          "count": 5,
+          "phase": "回到基态；能够无跳变衔接 idle",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state pet-head, render frame 5/5. 回到基态；能够无跳变衔接 idle. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        }
+      ]
+    },
+    {
+      "id": "feed",
+      "triggers": [
+        "interaction:feed"
+      ],
+      "frameDurationMs": 130,
+      "generationMode": "single-state-sequence",
+      "sequencePrompt": "Reference the confirmed core IP image core-ip/core-ip.png. Create one coherent 5-frame sequence for state feed triggered by interaction:feed. Generate the whole state as one sequence with a fixed camera, body scale, head center, and foot baseline. Keep the same face, colors, material, body proportions, and signature accessories in every frame. Show the complete body with clear source margin. Keep the character's established non-photographic art style and level of stylization unchanged. Use real alpha when supported; otherwise place the subject on one solid flat background color that differs clearly from the character (background only, do not restyle the character) without a checkerboard, gradient, scenery, ground, or shadow. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks.",
+      "frames": [
+        {
+          "file": "feed-01.png",
+          "index": 1,
+          "count": 5,
+          "phase": "准备姿势；与母版保持同一身体尺度和脚底基线",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state feed, render frame 1/5. 准备姿势；与母版保持同一身体尺度和脚底基线. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "feed-02.png",
+          "index": 2,
+          "count": 5,
+          "phase": "动作开始；只改变完成动作所需的局部姿态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state feed, render frame 2/5. 动作开始；只改变完成动作所需的局部姿态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "feed-03.png",
+          "index": 3,
+          "count": 5,
+          "phase": "主动作或反馈峰值；保持身份、镜头和身体比例",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state feed, render frame 3/5. 主动作或反馈峰值；保持身份、镜头和身体比例. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "feed-04.png",
+          "index": 4,
+          "count": 5,
+          "phase": "回弹或回位过渡；逐步恢复基态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state feed, render frame 4/5. 回弹或回位过渡；逐步恢复基态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "feed-05.png",
+          "index": 5,
+          "count": 5,
+          "phase": "回到基态；能够无跳变衔接 idle",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state feed, render frame 5/5. 回到基态；能够无跳变衔接 idle. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        }
+      ]
+    },
+    {
+      "id": "walk",
+      "triggers": [
+        "interaction:walk"
+      ],
+      "frameDurationMs": 160,
+      "generationMode": "single-state-sequence",
+      "sequencePrompt": "Reference the confirmed core IP image core-ip/core-ip.png. Create one coherent 6-frame sequence for state walk triggered by interaction:walk. Generate the whole state as one sequence with a fixed camera, body scale, head center, and foot baseline. Keep the same face, colors, material, body proportions, and signature accessories in every frame. Show the complete body with clear source margin. Keep the character's established non-photographic art style and level of stylization unchanged. Use real alpha when supported; otherwise place the subject on one solid flat background color that differs clearly from the character (background only, do not restyle the character) without a checkerboard, gradient, scenery, ground, or shadow. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks.",
+      "frames": [
+        {
+          "file": "walk-01.png",
+          "index": 1,
+          "count": 6,
+          "phase": "准备姿势；与母版保持同一身体尺度和脚底基线",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state walk, render frame 1/6. 准备姿势；与母版保持同一身体尺度和脚底基线. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "walk-02.png",
+          "index": 2,
+          "count": 6,
+          "phase": "动作开始；只改变完成动作所需的局部姿态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state walk, render frame 2/6. 动作开始；只改变完成动作所需的局部姿态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "walk-03.png",
+          "index": 3,
+          "count": 6,
+          "phase": "主动作或反馈峰值；保持身份、镜头和身体比例",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state walk, render frame 3/6. 主动作或反馈峰值；保持身份、镜头和身体比例. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "walk-04.png",
+          "index": 4,
+          "count": 6,
+          "phase": "主动作或反馈峰值；保持身份、镜头和身体比例",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state walk, render frame 4/6. 主动作或反馈峰值；保持身份、镜头和身体比例. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "walk-05.png",
+          "index": 5,
+          "count": 6,
+          "phase": "回弹或回位过渡；逐步恢复基态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state walk, render frame 5/6. 回弹或回位过渡；逐步恢复基态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "walk-06.png",
+          "index": 6,
+          "count": 6,
+          "phase": "回到基态；能够无跳变衔接 idle",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state walk, render frame 6/6. 回到基态；能够无跳变衔接 idle. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        }
+      ]
+    },
+    {
+      "id": "coffee",
+      "triggers": [
+        "interaction:coffee"
+      ],
+      "frameDurationMs": 130,
+      "generationMode": "single-state-sequence",
+      "sequencePrompt": "Reference the confirmed core IP image core-ip/core-ip.png. Create one coherent 5-frame sequence for state coffee triggered by interaction:coffee. Generate the whole state as one sequence with a fixed camera, body scale, head center, and foot baseline. Keep the same face, colors, material, body proportions, and signature accessories in every frame. Show the complete body with clear source margin. Keep the character's established non-photographic art style and level of stylization unchanged. Use real alpha when supported; otherwise place the subject on one solid flat background color that differs clearly from the character (background only, do not restyle the character) without a checkerboard, gradient, scenery, ground, or shadow. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks.",
+      "frames": [
+        {
+          "file": "coffee-01.png",
+          "index": 1,
+          "count": 5,
+          "phase": "准备姿势；与母版保持同一身体尺度和脚底基线",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state coffee, render frame 1/5. 准备姿势；与母版保持同一身体尺度和脚底基线. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "coffee-02.png",
+          "index": 2,
+          "count": 5,
+          "phase": "动作开始；只改变完成动作所需的局部姿态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state coffee, render frame 2/5. 动作开始；只改变完成动作所需的局部姿态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "coffee-03.png",
+          "index": 3,
+          "count": 5,
+          "phase": "主动作或反馈峰值；保持身份、镜头和身体比例",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state coffee, render frame 3/5. 主动作或反馈峰值；保持身份、镜头和身体比例. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "coffee-04.png",
+          "index": 4,
+          "count": 5,
+          "phase": "回弹或回位过渡；逐步恢复基态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state coffee, render frame 4/5. 回弹或回位过渡；逐步恢复基态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "coffee-05.png",
+          "index": 5,
+          "count": 5,
+          "phase": "回到基态；能够无跳变衔接 idle",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state coffee, render frame 5/5. 回到基态；能够无跳变衔接 idle. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        }
+      ]
+    },
+    {
+      "id": "sleep",
+      "triggers": [
+        "interaction:sleep"
+      ],
+      "frameDurationMs": 220,
+      "generationMode": "single-state-sequence",
+      "sequencePrompt": "Reference the confirmed core IP image core-ip/core-ip.png. Create one coherent 5-frame sequence for state sleep triggered by interaction:sleep. Generate the whole state as one sequence with a fixed camera, body scale, head center, and foot baseline. Keep the same face, colors, material, body proportions, and signature accessories in every frame. Show the complete body with clear source margin. Keep the character's established non-photographic art style and level of stylization unchanged. Use real alpha when supported; otherwise place the subject on one solid flat background color that differs clearly from the character (background only, do not restyle the character) without a checkerboard, gradient, scenery, ground, or shadow. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks.",
+      "frames": [
+        {
+          "file": "sleep-01.png",
+          "index": 1,
+          "count": 5,
+          "phase": "准备姿势；与母版保持同一身体尺度和脚底基线",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state sleep, render frame 1/5. 准备姿势；与母版保持同一身体尺度和脚底基线. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "sleep-02.png",
+          "index": 2,
+          "count": 5,
+          "phase": "动作开始；只改变完成动作所需的局部姿态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state sleep, render frame 2/5. 动作开始；只改变完成动作所需的局部姿态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "sleep-03.png",
+          "index": 3,
+          "count": 5,
+          "phase": "主动作或反馈峰值；保持身份、镜头和身体比例",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state sleep, render frame 3/5. 主动作或反馈峰值；保持身份、镜头和身体比例. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "sleep-04.png",
+          "index": 4,
+          "count": 5,
+          "phase": "回弹或回位过渡；逐步恢复基态",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state sleep, render frame 4/5. 回弹或回位过渡；逐步恢复基态. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        },
+        {
+          "file": "sleep-05.png",
+          "index": 5,
+          "count": 5,
+          "phase": "回到基态；能够无跳变衔接 idle",
+          "prompt": "Reference the confirmed core IP image core-ip/core-ip.png. Within the same generation request for state sleep, render frame 5/5. 回到基态；能够无跳变衔接 idle. Keep the same face, colors, material, body proportions, signature accessories, camera, head center, body scale, and foot baseline. Show the complete body centered with generous clear source margin on all four sides. Keep the character's established non-photographic art style and level of stylization unchanged. Use the same flat background as the other frames. Do not include: human hands, additional characters, unconfirmed props, text or lettering, logos or watermarks, decorative borders, scenery or rooms, ground or platform, cast shadows or contact shadows, glow or background color blocks."
+        }
+      ]
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 """语音识别引擎 - 通义千问 Qwen-Audio-ASR，支持 base64 data URL 上传"""
 import base64
 import requests
-from PyQt5.QtCore import QThread, pyqtSignal
+from PySide6.QtCore import QThread, Signal
 
 ASR_URL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation"
 
@@ -60,8 +60,8 @@ class ASREngine:
 
 class ASRWorker(QThread):
     """后台线程执行语音识别"""
-    recognized = pyqtSignal(str)
-    error = pyqtSignal(str)
+    recognized = Signal(str)
+    error = Signal(str)
 
     def __init__(self, engine: ASREngine, wav_bytes: bytes, parent=None):
         super().__init__(parent)

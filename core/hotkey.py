@@ -1,5 +1,5 @@
 """全局热键监听 - 使用 pynput"""
-from PyQt5.QtCore import QObject, pyqtSignal
+from PySide6.QtCore import QObject, Signal
 
 try:
     from pynput import keyboard
@@ -10,7 +10,7 @@ except ImportError:
 
 class HotkeyManager(QObject):
     """注册全局热键，触发时发出 activated 信号"""
-    activated = pyqtSignal()
+    activated = Signal()
 
     def __init__(self, hotkey_str: str = "<ctrl>+<shift>+<space>", parent=None):
         super().__init__(parent)

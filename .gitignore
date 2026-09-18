@@ -23,6 +23,14 @@ Thumbs.db
 build/
 dist/
 *.spec
+.pip-cache/
+.pyi-tmp/
+*.log
 
 # 模型缓存（rembg）
 *.onnx
+
+# Electron 素材管线（生成大文件，不入库）
+aigirl-desktop-pet/source-raw/
+aigirl-desktop-pet/incoming-assets/
+aigirl-desktop-pet/app/incoming-assets/

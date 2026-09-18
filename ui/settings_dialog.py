@@ -1,8 +1,8 @@
 """设置面板 - API Key、模型、角色图片、大小、透明度、热键、开机自启"""
 import os
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import (
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QFormLayout, QLabel, QLineEdit,
     QComboBox, QSlider, QPushButton, QCheckBox, QFileDialog, QDialogButtonBox,
     QMessageBox, QTabWidget, QWidget, QSpinBox
@@ -50,7 +50,7 @@ class SettingsDialog(QDialog):
             self.model_combo.setCurrentText(cur_model)
         form.addRow("模型:", self.model_combo)
 
-        from PyQt5.QtWidgets import QTextEdit
+        from PySide6.QtWidgets import QTextEdit
         self.sys_prompt_edit = QTextEdit()
         self.sys_prompt_edit.setPlainText(self.cfg.get("system_prompt", ""))
         self.sys_prompt_edit.setFixedHeight(80)
@@ -247,7 +247,7 @@ class SettingsDialog(QDialog):
         box = QMessageBox(self)
         box.setWindowTitle(f"长期记忆（共 {len(rows)} 条）")
         box.setText(lines)
-        box.exec_()
+        box.exec()
 
     def _clear_memories(self):
         if self.memory is None:

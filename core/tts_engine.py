@@ -2,8 +2,8 @@
 import os
 import tempfile
 import requests
-from PyQt5.QtCore import QUrl, QObject, pyqtSignal
-from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
+from PySide6.QtCore import QUrl, QObject, Signal
+from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 
 # Qwen-TTS 走 multimodal-generation 接口
 TTS_URL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation"
@@ -19,15 +19,18 @@ VOICES = {
 
 class TTSEngine(QObject):
     """合成并播放语音，播放结束发 finished 信号"""
-    speakStarted = pyqtSignal()
-    speakFinished = pyqtSignal()
-    error = pyqtSignal(str)
+    speakStarted = Signal()
+    speakFinished = Signal()
+    error = Signal(str)
 
     def __init__(self, api_key: str, voice: str = "Cherry", parent=None):
         super().__init__(parent)
         self.api_key = api_key
         self.voice = voice
         self._player = QMediaPlayer(self)
+        self._audio_out = QAudioOutput(self)
+        self._player.setAudioOutput(self._audio_out)
+        self._player.setPlaybackRate(1.25)  # 语速 1.25 倍
         self._player.mediaStatusChanged.connect(self._on_status)
 
     def set_params(self, api_key=None, voice=None):
@@ -37,11 +40,11 @@ class TTSEngine(QObject):
             self.voice = voice
 
     def _on_status(self, status):
-        if status == QMediaPlayer.EndOfMedia:
+        if status == QMediaPlayer.MediaStatus.EndOfMedia:
             self.speakFinished.emit()
 
     def is_playing(self) -> bool:
-        return self._player.state() == QMediaPlayer.PlayingState
+        return self._player.playbackState() == QMediaPlayer.PlaybackState.PlayingState
 
     def stop(self):
         self._player.stop()
@@ -80,7 +83,7 @@ class TTSEngine(QObject):
         except Exception as e:
             self.error.emit(str(e))
             return
-        self._player.setMedia(QMediaContent(QUrl(url)))
+        self._player.setSource(QUrl(url))
         self._player.play()
         self.speakStarted.emit()
 

@@ -3,8 +3,8 @@
 统一使用「虚拟桌面」坐标（所有显示器几何的并集，含负坐标与跨屏偏移），
 避免用单主屏 availableGeometry 做 clamp 导致窗口无法拖到副屏。
 """
-from PyQt5.QtCore import QRect, QPoint
-from PyQt5.QtWidgets import QApplication
+from PySide6.QtCore import QRect, QPoint
+from PySide6.QtWidgets import QApplication
 
 
 def virtual_desktop_rect() -> QRect:

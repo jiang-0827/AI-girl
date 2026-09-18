@@ -1,0 +1,5 @@
+﻿
+> com-doubao-lanlanpet@1.0.0 process:assets
+> node tools/process-assets.mjs
+
+Processed 68/68 assets. Report: E:\DesktopPetAI\aigirl-desktop-pet\app\src\assets\pet\asset-processing-report.json
