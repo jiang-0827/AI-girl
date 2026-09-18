@@ -138,6 +138,11 @@ DesktopPetAI/
 - 新增长期记忆（`core/memory.py`）：本地 SQLite `memory.db` + 通义 `text-embedding-v3` 向量化 + numpy 余弦检索（无重依赖）；对话结束后后台线程用 LLM 自动抽取用户事实；`AIEngine._messages_for` 按本轮输入检索 top-k 记忆注入 system prompt；embedding/网络失败时优雅降级为“最近记忆”
 - 设置面板新增「记忆」页：启用开关、注入条数、查看/清空记忆；记忆仅存本地，`.gitignore` 已排除 `memory.db`
 
+### v1.3.1 - 修复“假装执行”与 TTS 乱码 (2026-09-18)
+- 根因：模型只用文字口头答应（“好的帮你调至音量20”）却不调用工具，导致打不开应用/调音量不弹窗/创建文件无效。参考阿里云官方文档与社区示例，新增 `TOOL_USAGE_RULES` 强制注入 system prompt（意图→工具映射 + “先调工具再总结、禁止未调用就声称完成”）
+- `_post` 新增 `temperature=0.3` 提升工具调用稳定性，并对 qwen 系列显式 `enable_thinking=False`（思考模式会干扰 function calling）
+- TTS `_clean` 重写：只保留中文/英文/数字/基本句读，剔除波浪号 `~`、颜文字、emoji、装饰符号，修复“音量20Ω”等把 `~` 念成“Ω”的问题
+
 ## 依赖清单
 
 ```

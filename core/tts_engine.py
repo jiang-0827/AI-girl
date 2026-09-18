@@ -85,9 +85,28 @@ class TTSEngine(QObject):
         self.speakStarted.emit()
 
     def _clean(self, text: str) -> str:
-        # 去掉 emoji 和 markdown 符号，避免念出来
+        """只保留适合朗读的文本：中文、英文、数字、基本句读；
+        去掉 emoji、颜文字、波浪号~、markdown 与装饰符号，避免被 TTS 逐字念出（如把 ~ 念成“Ω”）。"""
+        if not text:
+            return ""
         import re
-        text = re.sub(r"[*_`#>\[\]]", "", text)
-        # 去除非 BMP 字符（emoji）
-        text = "".join(ch for ch in text if ord(ch) < 0x10000)
-        return text.strip()
+        # 先删常见颜文字 / emoji 组合
+        text = re.sub(r"[\(（\[＜<][^\)）\]＞>]{0,6}[\)）\]＞>]", "", text)  # (..) (^_^) 等括号脸
+        text = re.sub(r"[~～\^\*\+·•☆★♥♡ω▽□■▲▼→←↑↓]+", " ", text)          # 波浪号/颜文字构件/箭头
+        # 保留：CJK、ASCII 字母数字、常见中文句读与空白；其余（emoji 等）丢弃
+        keep = set("，。？！、；：,.?!;:%")
+        out = []
+        for ch in text:
+            o = ord(ch)
+            if "\u4e00" <= ch <= "\u9fff":       # 中文
+                out.append(ch)
+            elif ("a" <= ch <= "z" or "A" <= ch <= "Z" or "0" <= ch <= "9") and o < 0x7f:
+                out.append(ch)
+            elif ch in keep:
+                out.append(ch)
+            elif ch in " \n\t":
+                out.append(" ")
+            # 其他字符（emoji、颜文字残留、装饰符号）一律丢弃
+        text = "".join(out)
+        text = re.sub(r"\s+", " ", text).strip()
+        return text

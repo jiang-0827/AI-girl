@@ -20,6 +20,19 @@ SAFETY_RULES = (
     "3) 若某操作被拦截或用户取消，请自然地向用户说明，不要反复重试。"
 )
 
+# 强制工具调用规则：解决“模型只用文字假装答应、实际不调用工具”的问题
+TOOL_USAGE_RULES = (
+    "\n\n【工具调用规则（必须严格遵守）】"
+    "当用户的话里包含以下任何一种意图时，你【必须】调用对应的工具函数，绝不允许只用文字口头答应而不实际调用："
+    "打开/启动某应用→open_app；打开某文件→open_file；新建/创建一个文本或记事本文件→create_file；"
+    "搜索/查找文件→search_file；调/改/设音量→set_volume；查音量→get_volume；调亮度→set_brightness；"
+    "列出/切换/关闭窗口→list_windows/focus_window/close_window；"
+    "提醒/定时→create_reminder；查提醒→list_reminders；取消提醒→cancel_reminder；"
+    "查时间/日期→get_datetime；查电脑状态/内存/电量→system_status。"
+    "先调用工具，等工具返回结果后，再用自然语言向用户总结。切勿在没调用工具前就声称‘已帮你完成’。"
+    "另外：回复里不要使用颜文字、emoji 表情、波浪号~等符号，因为会被语音朗读出来。"
+)
+
 
 class AIEngine:
     def __init__(self, api_key, model="qwen-turbo", system_prompt=""):
@@ -48,7 +61,7 @@ class AIEngine:
 
     def _messages_for(self, user_text):
         msgs = []
-        sys_prompt = (self.system_prompt or "") + SAFETY_RULES
+        sys_prompt = (self.system_prompt or "") + SAFETY_RULES + TOOL_USAGE_RULES
         # 长期记忆：检索与本轮输入相关的记忆注入 system
         if self.memory is not None:
             try:
@@ -61,7 +74,10 @@ class AIEngine:
         return msgs
 
     def _post(self, messages, use_tools=True, timeout=60):
-        payload = {"model": self.model, "messages": messages}
+        payload = {"model": self.model, "messages": messages, "temperature": 0.3}
+        # 新版 qwen 思考模式会干扰工具调用，显式关闭
+        if self.model.startswith("qwen3") or "turbo" in self.model or "plus" in self.model:
+            payload["enable_thinking"] = False
         if use_tools:
             payload["tools"] = SCHEMAS
             payload["parallel_tool_calls"] = False
