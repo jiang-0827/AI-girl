@@ -27,6 +27,7 @@ class AIEngine:
         self.model = model
         self.system_prompt = system_prompt
         self.history = []
+        self.memory = None   # 可选：MemoryStore 实例
 
     def set_params(self, api_key=None, model=None, system_prompt=None):
         if api_key is not None:
@@ -48,6 +49,12 @@ class AIEngine:
     def _messages_for(self, user_text):
         msgs = []
         sys_prompt = (self.system_prompt or "") + SAFETY_RULES
+        # 长期记忆：检索与本轮输入相关的记忆注入 system
+        if self.memory is not None:
+            try:
+                sys_prompt += self.memory.as_system_block(user_text)
+            except Exception:
+                pass
         msgs.append({"role": "system", "content": sys_prompt})
         msgs.extend(self.history)
         msgs.append({"role": "user", "content": user_text})
@@ -153,6 +160,15 @@ class ChatWorker(QThread):
             # 打字机流式输出
             self._typewriter(final)
             self.replyFinished.emit()
+            # 对话结束后，后台自动抽取值得长期记住的信息（不阻塞）
+            mem = getattr(self.engine, "memory", None)
+            if mem is not None and final.strip():
+                try:
+                    threading.Thread(
+                        target=mem.extract_and_remember,
+                        args=(self.user_text, final), daemon=True).start()
+                except Exception:
+                    pass
         except Exception as e:
             self.error.emit(str(e))
 

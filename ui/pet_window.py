@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (
 )
 
 from config import load_config, save_config, get_image_path
-from utils.screen import clamp_to_virtual
+from utils.screen import clamp_to_virtual, clamp_to_screen, screen_scale
 from core.animator import Animator
 from core.ai_engine import AIEngine, ChatWorker
 from core.hotkey import HotkeyManager
@@ -16,6 +16,7 @@ from core.asr_engine import ASREngine, ASRWorker
 from core.audio_recorder import AudioRecorder, MAX_SECONDS
 from core.reminders import ReminderScheduler
 from core.proactive import ProactiveEngine
+from core.memory import MemoryStore
 from ui.chat_bubble import ChatBubble
 from ui.input_bar import InputBar
 from ui.confirm_bubble import ConfirmBubble
@@ -67,6 +68,15 @@ class PetWindow(QWidget):
         )
         self.worker = None
 
+        # 长期记忆
+        self.memory = MemoryStore(
+            api_key=self.cfg.get("api_key", ""),
+            chat_model=self.cfg.get("model", "qwen-turbo"),
+            topk=int(self.cfg.get("memory_topk", 4)),
+            enabled=bool(self.cfg.get("enable_memory", True)),
+        )
+        self.engine.memory = self.memory
+
         # 语音引擎
         self.tts = TTSEngine(self.cfg.get("api_key", ""), self.cfg.get("tts_voice", "Cherry"), self)
         self.tts.speakStarted.connect(lambda: self.animator.set_state(Animator.TALKING))
@@ -116,6 +126,7 @@ class PetWindow(QWidget):
         self._load_pixmap()
         self._restore_position()
         self.setWindowOpacity(max(0.4, self.cfg.get("opacity", 255) / 255.0))
+        self._sync_screen_scale()  # 启动时按所在屏适配大小
 
         # 热键
         self.hotkey = None
@@ -170,6 +181,24 @@ class PetWindow(QWidget):
             x, y = self._user_tail()
             self.user_bubble.update_text(self.user_bubble._text, x, y)
 
+    def _pet_center(self):
+        size = int(self.cfg.get("pet_size", 160))
+        return self._base_pos.x() + size // 2, self._base_pos.y() + size // 2
+
+    def _sync_screen_scale(self):
+        """根据角色当前所在屏幕，让输入条/气泡/确认框大小自适应主副屏。"""
+        cx, cy = self._pet_center()
+        f = screen_scale(cx, cy)
+        self.input_bar.apply_scale(f)
+        self.ai_bubble.apply_scale(f)
+        self.user_bubble.apply_scale(f)
+        if self.confirm_bubble is not None:
+            self.confirm_bubble.apply_scale(f)
+        # 尺寸变化后重新定位，保证不超出当前屏
+        self._reposition_bubbles()
+        if self.input_bar.isVisible():
+            self._open_input()
+
     # ---------- 拖拽 ----------
     def mousePressEvent(self, ev):
         self.note_user_activity()
@@ -191,6 +220,7 @@ class PetWindow(QWidget):
                 self._open_input()
             self._drag_pos = None
             self._save_position()
+            self._sync_screen_scale()  # 可能换到了另一块屏，重算大小
 
     # ---------- 菜单 ----------
     def _show_menu(self, global_pos):
@@ -251,8 +281,9 @@ class PetWindow(QWidget):
         size = int(self.cfg.get("pet_size", 160))
         x = self._base_pos.x() + size // 2 - self.input_bar.width() // 2
         y = self._base_pos.y() + size + 16
-        # 用整个虚拟桌面（含副屏负坐标）定位，使输入条能跟随角色到副屏
-        x, y = clamp_to_virtual(x, y, self.input_bar.width(), self.input_bar.height())
+        # 以角色所在屏幕为边界，使输入条跟随角色到副屏且完整显示在该屏
+        cx, cy = self._pet_center()
+        x, y = clamp_to_screen(x, y, self.input_bar.width(), self.input_bar.height(), cx, cy)
         self.input_bar.move(x, y)
         self.input_bar.show()
         self.input_bar.raise_()
@@ -492,7 +523,7 @@ class PetWindow(QWidget):
 
     # ---------- 设置 ----------
     def open_settings(self):
-        dlg = SettingsDialog(self.cfg, self)
+        dlg = SettingsDialog(self.cfg, self, memory=self.memory)
         if dlg.exec_() == SettingsDialog.Accepted:
             self.cfg = dlg.result_config()
             save_config(self.cfg)
@@ -503,6 +534,11 @@ class PetWindow(QWidget):
         self.setWindowOpacity(max(0.4, self.cfg.get("opacity", 255) / 255.0))
         self.tts.set_params(voice=self.cfg.get("tts_voice", "Cherry"))
         self.ctx["enable_tools"] = self.cfg.get("enable_tools", True)
+        self.memory.set_params(
+            api_key=self.cfg.get("api_key", ""),
+            enabled=bool(self.cfg.get("enable_memory", True)),
+            topk=int(self.cfg.get("memory_topk", 4)),
+        )
         self.proactive.update_cfg(self.cfg)
         self._start_hotkeys()
 

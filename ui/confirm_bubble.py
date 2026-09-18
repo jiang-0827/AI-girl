@@ -13,7 +13,9 @@ class ConfirmBubble(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
         self.setAttribute(Qt.WA_TranslucentBackground)
-        self.setFixedWidth(300)
+        self._scale = 1.0
+        self.BASE_WIDTH = 300
+        self.setFixedWidth(self.BASE_WIDTH)
 
         v = QVBoxLayout(self)
         v.setContentsMargins(10, 10, 10, 10)
@@ -78,6 +80,22 @@ class ConfirmBubble(QWidget):
     def _resolve(self, ok):
         self.hide()
         self.confirmed.emit(ok)
+
+    def apply_scale(self, factor: float):
+        """根据屏幕缩放因子调整宽度与字号。"""
+        factor = max(0.6, min(1.6, float(factor)))
+        if abs(factor - self._scale) < 0.01:
+            return
+        self._scale = factor
+        self.setFixedWidth(round(self.BASE_WIDTH * factor))
+        fs = lambda base: max(10, round(base * factor))
+        tf = self.findChild(QLabel, "title").font()
+        tf.setPixelSize(fs(22)); self.findChild(QLabel, "title").setFont(tf)
+        df = self.desc.font()
+        df.setPixelSize(fs(20)); self.desc.setFont(df)
+        for b in (self.btn_ok, self.btn_no):
+            bf = b.font(); bf.setPixelSize(fs(18)); b.setFont(bf)
+        self.adjustSize()
 
     def keyPressEvent(self, ev):
         if ev.key() in (Qt.Key_Return, Qt.Key_Enter):

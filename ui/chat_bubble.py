@@ -3,13 +3,15 @@ from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation, QRect
 from PyQt5.QtGui import QPainter, QColor, QFont, QPainterPath, QFontMetrics
 from PyQt5.QtWidgets import QWidget, QGraphicsOpacityEffect
 
-from utils.screen import clamp_to_virtual
+from utils.screen import clamp_to_virtual, clamp_to_screen
 
 
 class ChatBubble(QWidget):
     """无边框置顶气泡，圆角矩形 + 底部小三角指向角色"""
 
+    BASE_MAX_WIDTH = 300
     MAX_WIDTH = 300
+    BASE_FONT_PX = 22
 
     def __init__(self, role: str = "ai", align: str = "center", parent=None):
         super().__init__(parent, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
@@ -32,6 +34,8 @@ class ChatBubble(QWidget):
         self._anim.finished.connect(self._maybe_hide)
 
         self._font = QFont("Microsoft YaHei", 11)
+        self._font.setPixelSize(self.BASE_FONT_PX)
+        self._scale = 1.0
 
     # ---------- 对外接口 ----------
     def show_text(self, text: str, tail_x: int, tail_y: int):
@@ -59,6 +63,17 @@ class ChatBubble(QWidget):
         self._fade_timer.stop()
         self._start_fade_out()
 
+    def apply_scale(self, factor: float):
+        """根据屏幕缩放因子调整字号与最大宽度，用于主副屏切换。"""
+        factor = max(0.6, min(1.6, float(factor)))
+        if abs(factor - self._scale) < 0.01:
+            return
+        self._scale = factor
+        self.MAX_WIDTH = round(self.BASE_MAX_WIDTH * factor)
+        self._font.setPixelSize(max(12, round(self.BASE_FONT_PX * factor)))
+        if self._text:
+            self._relayout()
+
     def _position(self, tail_x, tail_y):
         # 根据尾巴对齐方式决定气泡横向位置
         if self.align == 'left':
@@ -68,8 +83,8 @@ class ChatBubble(QWidget):
         else:
             x = tail_x - self.width() // 2
         y = tail_y - self.height()
-        # 用整个虚拟桌面（含副屏负坐标）做边界，不再锁死主屏
-        x, y = clamp_to_virtual(int(x), int(y), self.width(), self.height())
+        # 以尾巴所在屏幕为边界，保证气泡完整显示在角色当前屏（含副屏负坐标）
+        x, y = clamp_to_screen(int(x), int(y), self.width(), self.height(), int(tail_x), int(tail_y))
         self.move(x, y)
 
     # ---------- 布局 ----------

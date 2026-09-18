@@ -132,6 +132,12 @@ DesktopPetAI/
 - 修复 `_restore_position`：新增 `position_set` 标志区分「未设置」与「合法负坐标」，并用虚拟桌面做包含，避免副屏位置被重置或显示器变更后遗留在屏外
 - 新增「10 秒无操作自动淡出气泡」：本轮对话结束（AI 回复完成 / TTS 播报结束）后启动 `_idle_timer`；通过 `QApplication` 事件过滤器捕获本应用内键盘/鼠标/滚轮活动重置计时；`ChatBubble` 增加 `force_fade_out`/`is_showing`，空闲计时接管气泡淡出，与旧 `keep_alive` 协调避免两套计时冲突；录音中/确认弹窗在前台/正在输入时不误隐藏
 
+### v1.3.0 - 聊天框多屏自适应 + 长期记忆 (2026-09-18)
+- 聊天框随主副屏切换自适应大小：`utils/screen.py` 新增 `screen_at`/`screen_scale`/`clamp_to_screen`；`InputBar`/`ChatBubble`/`ConfirmBubble` 各增 `apply_scale(factor)`；`PetWindow._sync_screen_scale()` 在启动/拖拽结束时根据角色所在屏 DPI/分辨率比例重算三组件尺寸与位置（因子限幅 [0.6,1.6]）
+- 气泡/输入条/确认框定位改为以「角色所在屏幕」为边界（`clamp_to_screen`），保证切屏后完整显示在当前屏
+- 新增长期记忆（`core/memory.py`）：本地 SQLite `memory.db` + 通义 `text-embedding-v3` 向量化 + numpy 余弦检索（无重依赖）；对话结束后后台线程用 LLM 自动抽取用户事实；`AIEngine._messages_for` 按本轮输入检索 top-k 记忆注入 system prompt；embedding/网络失败时优雅降级为“最近记忆”
+- 设置面板新增「记忆」页：启用开关、注入条数、查看/清空记忆；记忆仅存本地，`.gitignore` 已排除 `memory.db`
+
 ## 依赖清单
 
 ```

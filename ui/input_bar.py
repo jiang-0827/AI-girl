@@ -11,10 +11,15 @@ class InputBar(QWidget):
     sendRequested = pyqtSignal(str)
     voiceToggled = pyqtSignal()
 
+    # 基准尺寸（主屏 100% 缩放时）
+    BASE_HEIGHT = 52
+    BASE_EDIT_W = 240
+
     def __init__(self, parent=None):
         super().__init__(parent, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
         self.setAttribute(Qt.WA_TranslucentBackground)
-        self.setFixedHeight(52)
+        self._scale = 1.0
+        self.setFixedHeight(self.BASE_HEIGHT)
 
         outer = QHBoxLayout(self)
         outer.setContentsMargins(8, 6, 8, 6)
@@ -98,6 +103,29 @@ class InputBar(QWidget):
     def set_voice_active(self, active: bool):
         self.btn_voice.setChecked(active)
         self.btn_voice.setText("🔴" if active else "🎤")
+
+    def apply_scale(self, factor: float):
+        """根据屏幕缩放因子调整高度/字号/宽度，用于主副屏切换。"""
+        factor = max(0.6, min(1.6, float(factor)))
+        if abs(factor - self._scale) < 0.01:
+            return
+        self._scale = factor
+        self.setFixedHeight(round(self.BASE_HEIGHT * factor))
+        self.edit.setMinimumWidth(round(self.BASE_EDIT_W * factor))
+        fs = lambda base: max(10, round(base * factor))
+        # 用字体对象缩放更可靠
+        f = self.edit.font()
+        f.setPixelSize(fs(14))
+        self.edit.setFont(f)
+        sf = self.btn_send.font()
+        sf.setPixelSize(fs(15))
+        self.btn_send.setFont(sf)
+        self.btn_send.setFixedHeight(round(32 * factor))
+        for b in (self.btn_voice, self.btn_close):
+            bf = b.font()
+            bf.setPixelSize(fs(18))
+            b.setFont(bf)
+        self.adjustSize()
 
     def keyPressEvent(self, ev):
         if ev.key() == Qt.Key_Escape:

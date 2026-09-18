@@ -16,6 +16,8 @@ DEFAULT_CONFIG = {
     "enable_asr": True,
     "voice_hotkey": "<ctrl>+<shift>+v",
     "enable_tools": True,
+    "enable_memory": True,
+    "memory_topk": 4,
     "proactive_enabled": True,
     "proactive_idle_min": 30,
     "proactive_hourly": False,

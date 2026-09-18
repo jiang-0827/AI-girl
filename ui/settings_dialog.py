@@ -14,9 +14,10 @@ from core.tts_engine import VOICES
 class SettingsDialog(QDialog):
     """应用设置对话框，编辑一个 config 字典副本，确定后回写"""
 
-    def __init__(self, cfg: dict, parent=None):
+    def __init__(self, cfg: dict, parent=None, memory=None):
         super().__init__(parent)
         self.cfg = dict(cfg)
+        self.memory = memory
         self.setWindowTitle("桌面小助手 · 设置")
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.resize(460, 420)
@@ -160,6 +161,32 @@ class SettingsDialog(QDialog):
 
         tabs.addTab(butler_tab, "管家")
 
+        # --- 记忆标签页 ---
+        mem_tab = QWidget()
+        mform = QFormLayout(mem_tab)
+
+        self.memory_chk = QCheckBox("启用长期记忆（跨会话记住你的信息）")
+        self.memory_chk.setChecked(bool(self.cfg.get("enable_memory", True)))
+        mform.addRow(self.memory_chk)
+
+        self.mem_topk_spin = QSpinBox()
+        self.mem_topk_spin.setRange(1, 10)
+        self.mem_topk_spin.setValue(int(self.cfg.get("memory_topk", 4)))
+        mform.addRow("每次注入记忆条数:", self.mem_topk_spin)
+        mform.addRow(QLabel("记忆只存在本地 memory.db，不会上传；可随时查看或清空。"))
+
+        mrow = QHBoxLayout()
+        self.btn_view_mem = QPushButton("查看记忆…")
+        self.btn_view_mem.clicked.connect(self._view_memories)
+        self.btn_clear_mem = QPushButton("清空所有记忆")
+        self.btn_clear_mem.clicked.connect(self._clear_memories)
+        mrow.addWidget(self.btn_view_mem)
+        mrow.addWidget(self.btn_clear_mem)
+        mw = QWidget(); mw.setLayout(mrow)
+        mform.addRow(mw)
+
+        tabs.addTab(mem_tab, "记忆")
+
         # --- 通用标签页 ---
         gen_tab = QWidget()
         gform = QFormLayout(gen_tab)
@@ -203,8 +230,31 @@ class SettingsDialog(QDialog):
         self.cfg["proactive_hourly"] = self.hourly_chk.isChecked()
         self.cfg["proactive_sit_enabled"] = self.sit_chk.isChecked()
         self.cfg["proactive_sit_min"] = self.sit_spin.value()
+        self.cfg["enable_memory"] = self.memory_chk.isChecked()
+        self.cfg["memory_topk"] = self.mem_topk_spin.value()
         self.cfg["auto_start"] = self.autostart_chk.isChecked()
         self.accept()
+
+    def _view_memories(self):
+        if self.memory is None:
+            QMessageBox.information(self, "长期记忆", "记忆功能未就绪。")
+            return
+        rows = self.memory.all_memories()
+        if not rows:
+            QMessageBox.information(self, "长期记忆", "目前还没有记住任何信息。")
+            return
+        lines = "\n".join(f"#{i} [{t}]  {txt}" for i, txt, t in rows)
+        box = QMessageBox(self)
+        box.setWindowTitle(f"长期记忆（共 {len(rows)} 条）")
+        box.setText(lines)
+        box.exec_()
+
+    def _clear_memories(self):
+        if self.memory is None:
+            return
+        if QMessageBox.question(self, "清空记忆", "确定删除所有长期记忆吗？此操作不可恢复。") == QMessageBox.Yes:
+            self.memory.clear()
+            QMessageBox.information(self, "已清空", "所有长期记忆已删除。")
 
     def result_config(self) -> dict:
         return self.cfg
