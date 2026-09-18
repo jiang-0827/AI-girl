@@ -1,0 +1,15 @@
+PyQt5>=5.15
+requests>=2.28
+pynput>=1.7
+Pillow>=9.0
+sounddevice>=0.4
+numpy>=1.24
+# 系统操作工具（P1 贾维斯能力）
+psutil>=5.9
+pycaw>=20240101
+comtypes>=1.2
+screen-brightness-control>=0.20
+PyGetWindow>=0.0.9
+# 以下仅用于制作/抠除形象图，运行时非必需：
+# rembg>=2.0
+# onnxruntime>=1.16
