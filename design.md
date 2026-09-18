@@ -3,7 +3,7 @@
 ## 项目概述
 
 基于 **Python + PySide6 (Qt6)** 开发的 Windows 桌面 AI 悬浮伴侣，常驻桌面，目标形态为"贾维斯式智能管家"。
-角色为英雄联盟格温风格的 Q 版少女「蓝蓝」，以透明悬浮窗常驻桌面，支持气泡式对话、文字/语音双模输入、通义千问大模型对话、语音合成播报、系统操作执行（function calling）、日程提醒、主动关怀与长期记忆；同时具备完整的多帧动画互动体验（跳跃 / 压扁回弹 / 抖动 / 跑动 / 摸摸头 / 喂食 / 走路 / 咖啡 / 睡觉 / 随机坐下待机）。
+角色为英雄联盟格温风格的 Q 版少女「蓝蓝」，以透明悬浮窗常驻桌面，支持气泡式对话、文字/语音双模输入、通义千问大模型对话、语音合成播报、系统操作执行（function calling）、日程提醒、主动关怀与长期记忆；同时具备完整的多帧动画互动体验（跳跃 / 压扁回弹 / 抖动 / 跑动 / 摸摸头 / 喂食 / 走路 / 咖啡 / 睡觉）。
 
 ## 角色形象与素材
 
@@ -12,8 +12,8 @@
 | 角色名 | 蓝蓝 |
 | 形象 | 英雄联盟·格温风格 Q 版少女：浅蓝渐变双马尾卷发、黑色大蝴蝶结、蓝绿色颈链、黑色露肩短袖连衣裙、Q 版手办质感 |
 | 来源 | 用户提供参考图 + seedream 图生图生成动作帧；绿幕抠图转透明 |
-| 动画 | 13 个状态 72 帧透明 PNG（512×512 RGBA）：idle / sit / blink / chat / jump / shake / run-left / run-right / pet-head / feed / walk / coffee / sleep / reminder |
-| 交互反馈 | 点击轮流触发跳跃→压扁回弹→左右抖动；拖拽播放跑动动画；随机坐下待机（35% 概率）；互动随机中文气泡 |
+| 动画 | 13 个状态 67 帧透明 PNG（512×512 RGBA）：idle / blink / chat / jump / shake / run-left / run-right / pet-head / feed / walk / coffee / sleep / reminder |
+| 交互反馈 | 点击轮流触发跳跃→压扁回弹→左右抖动；拖拽播放跑动动画；互动随机中文气泡 |
 
 ## 技术栈
 
@@ -40,7 +40,7 @@ DesktopPetAI/
 ├── design.md                   # 本文件
 ├── requirements.txt            # Python 依赖
 ├── assets/
-│   ├── anim/                   # 72 帧动画（13 状态）
+│   ├── anim/                   # 67 帧动画（13 状态）
 │   ├── character.png           # 角色透明主图
 │   ├── tray_icon.png           # 托盘图标
 │   ├── app.ico                 # 应用多尺寸 ico
@@ -94,10 +94,9 @@ DesktopPetAI/
 
 ### 4. 角色动画系统
 - Animator（QTimer 60fps）驱动：frameChanged（帧切换）+ offsetChanged（浮动）+ scaleChanged（缩放/压扁回弹）。
-- 优先级抢占：reminder(95) > run(90) > chat/pet-head/feed/walk/coffee/sleep(85) > jump(70) > shake(60) > blink(30) > sit(15) > idle(10)。
+- 优先级抢占：reminder(95) > run(90) > chat/pet-head/feed/walk/coffee/sleep(85) > jump(70) > shake(60) > blink(30) > idle(10)。
 - 基态语义：IDLE（呼吸浮动）/ TALKING（快速脉动）/ THINKING（左右摇摆）/ LISTENING（放大浮动）；眨眼随机 2.5~5.5s。
 - 点击互动轮转：跳跃 → 压扁回弹（320ms 挤压/回弹/稳定）→ 左右抖动。
-- **坐姿待机**：空闲 7~13s 随机触发，35% 概率播放 4 帧坐姿动画（9s 后自动起身），其余触发抖动/跳跃并弹气泡。
 
 ### 5. 异步线程模型
 - ChatWorker：后台对话 + 工具执行 + 打字机；ASRWorker：后台语音识别。

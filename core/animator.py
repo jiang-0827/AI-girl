@@ -31,7 +31,6 @@ class Animator(QObject):
     # priority 抢占优先级 / duration_ms 限时(循环动画) / once 一次性
     STATES = {
         'idle':      dict(frames=4, ms=900,  loop=True,  priority=10, once=False),
-        'sit':       dict(frames=4, ms=700,  loop=True,  priority=15, once=False, duration_ms=9000),
         'blink':     dict(frames=5, ms=75,   loop=False, priority=30, once=True),
         'chat':      dict(frames=5, ms=140,  loop=True,  priority=85, once=False),
         'jump':      dict(frames=5, ms=110,  loop=False, priority=70, once=True),

@@ -333,12 +333,9 @@ class PetWindow(QWidget):
                 return
             if self.animator.is_active():
                 return
-            # 随机：动作 + 气泡（坐下时安静休息，不弹气泡）
-            if random.random() < 0.35:
-                self.animator.play('sit')          # 35% 概率坐下待机一会儿
-            else:
-                self.animator.play(random.choice(['shake', 'shake', 'jump']))
-                self._show_anim_bubble(random.choice(IDLE_TEXTS))
+            # 随机：动作 + 气泡
+            self.animator.play(random.choice(['shake', 'shake', 'jump']))
+            self._show_anim_bubble(random.choice(IDLE_TEXTS))
         finally:
             self._schedule_idle_anim()
 
