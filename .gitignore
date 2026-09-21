@@ -35,3 +35,6 @@ dist/
 aigirl-desktop-pet/source-raw/
 aigirl-desktop-pet/incoming-assets/
 aigirl-desktop-pet/app/incoming-assets/
+
+# 按版本导出的源码快照（不入库）
+版本归档/
