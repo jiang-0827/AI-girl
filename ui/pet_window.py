@@ -350,7 +350,9 @@ class PetWindow(QWidget):
     def _show_menu(self, global_pos):
         menu = QMenu()
         act_chat = menu.addAction("💬 陪我聊聊天")
-        act_voice = menu.addAction("🎤 语音说话")
+        act_voice = None
+        if self.cfg.get("enable_asr", True):
+            act_voice = menu.addAction("🎤 语音说话")
         menu.addSeparator()
         act_pet = menu.addAction("💗 摸摸头")
         act_feed = menu.addAction("🍰 喂吃的")
@@ -476,7 +478,8 @@ class PetWindow(QWidget):
             self.tray = QSystemTrayIcon(icon, self)
             menu = QMenu()
             menu.addAction("💬 聊天", self._open_input)
-            menu.addAction("🎤 语音说话", self._toggle_voice_input)
+            if self.cfg.get("enable_asr", True):
+                menu.addAction("🎤 语音说话", self._toggle_voice_input)
             menu.addSeparator()
             menu.addAction("⚙ 设置", self.open_settings)
             menu.addAction("显示/隐藏", self._toggle_visible)

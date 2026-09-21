@@ -21,6 +21,7 @@ Thumbs.db
 
 # 构建
 build/
+release/
 dist/
 *.spec
 .pip-cache/
